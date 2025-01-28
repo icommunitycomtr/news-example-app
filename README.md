@@ -35,14 +35,14 @@ En basit şekilde **MVVM+Protocol** kullan.
 Swift ve UIKit
 
 ## Responsive Design
-- İster **Storyboard** ister programmatically olarak UI'ı oluşturabilirsin. Eğer UI oluşturmada kendini zayıf hissediyorsan Storyboard kullanmanı tavsiye ederim.
-- News listesi için TableView/CollectionView kullanabilirsin. Eğer aksi bir durum yok ise **CollectionView** kullanmanı tavsiye ederim.
+- İster **Storyboard** ister programmatically olarak UI'ı oluşturabilirsin. Eğer UI oluşturmada kendini zayıf hissediyorsan Storyboard kullanmanı tavsiye ederim
+- News listesi için TableView/CollectionView kullanabilirsin. Eğer aksi bir durum yok ise **CollectionView** kullanmanı tavsiye ederim
 - Tasarımın tüm iPhone'larda düzgün göründüğünden emin ol
 - Landscape orientation desteği ver
 - iPad desteği ver
 
 ## Akış
-News listesini bir array ile kontrol et. Search mekanizmasını kullanırken bu listeyi iyi bir şekilde yönetmen lazım. Listeyi çekmek ve search yapmak için API'ı kullan
+News listesini bir array ile kontrol et. Search mekanizmasını kullanırken bu listeyi iyi bir şekilde yönetmen lazım. Listeyi çekmek ve search yapmak için API'ı kullan.
 
 ## Anahtar Kelimeler
 - MVVM
