@@ -1,7 +1,7 @@
 excluded:
 - .git/*
 - Pods
-- App/
+- App/*
 
 opt_in_rules:
 - attributes
