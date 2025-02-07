@@ -39,7 +39,7 @@ final class SplashViewController: UIViewController {
 // MARK: - Private Methods
 private extension SplashViewController {
     func configureView() {
-        view.backgroundColor = .systemRed
+        view.backgroundColor = .primaryBackground
         addViews()
         configureLayout()
         navigateToHome()
@@ -64,11 +64,19 @@ private extension SplashViewController {
     }
 
     func navigateToHome() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
-            let homeViewController = HomeViewController()
-            let navigationController = UINavigationController(rootViewController: homeViewController)
-            navigationController.modalPresentationStyle = .fullScreen
-            self?.present(navigationController, animated: true)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            guard let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate else {
+                return
+            }
+            UIView.animate(withDuration: 0.25) {
+                sceneDelegate.window?.layer.opacity = 0
+            } completion: { _ in
+                sceneDelegate.window?.rootViewController = TabBarController()
+
+                UIView.animate(withDuration: 0.25) {
+                    sceneDelegate.window?.layer.opacity = 1
+                }
+            }
         }
     }
 }

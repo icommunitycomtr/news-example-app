@@ -1,13 +1,13 @@
 //
-//  HomeViewController.swift
+//  SettingsViewController.swift
 //  News
 //
-//  Created by Mert Ozseven on 4.02.2025.
+//  Created by Mert Ozseven on 7.02.2025.
 //
 
 import UIKit
 
-final class HomeViewController: UIViewController {
+final class SettingsViewController: UIViewController {
 
     // MARK: Life Cycle
     override func viewDidLoad() {
@@ -18,7 +18,7 @@ final class HomeViewController: UIViewController {
 }
 
 // MARK: - Private Methods
-private extension HomeViewController {
+private extension SettingsViewController {
 
     func configureView() {
         view.backgroundColor = .primaryBackground
@@ -31,6 +31,6 @@ private extension HomeViewController {
     }
 
     func configureLayout() {
-
+        
     }
 }
