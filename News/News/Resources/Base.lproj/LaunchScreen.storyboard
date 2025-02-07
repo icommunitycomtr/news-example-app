@@ -1,7 +1,9 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13122.16" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="01J-lp-oVM">
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23504" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="01J-lp-oVM">
+    <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13104.12"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23506"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -11,10 +13,35 @@
             <objects>
                 <viewController id="01J-lp-oVM" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="Ze5-6b-2t3">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" xcode11CocoaTouchSystemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                        <subviews>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="newspaper.fill" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="Bu8-qy-vwW" userLabel="newsImageView">
+                                <rect key="frame" x="84.666666666666686" y="298.33333333333331" width="224" height="223.66666666666669"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="224" id="FdH-d6-w9Z"/>
+                                    <constraint firstAttribute="height" constant="224" id="XTF-oh-kJH"/>
+                                </constraints>
+                            </imageView>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Mert News" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="rB5-bx-cWn" userLabel="newsLabel">
+                                <rect key="frame" x="0.0" y="522" width="393" height="32"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="32" id="FZn-Hl-je4"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="32"/>
+                                <color key="textColor" name="primaryLabel"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
+                        <color key="backgroundColor" name="primaryBackground"/>
+                        <constraints>
+                            <constraint firstItem="rB5-bx-cWn" firstAttribute="top" secondItem="Bu8-qy-vwW" secondAttribute="bottom" id="6zi-t7-Yw7"/>
+                            <constraint firstItem="Bu8-qy-vwW" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="773-E1-lNh"/>
+                            <constraint firstItem="Bu8-qy-vwW" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" constant="-16" id="CH8-e2-VDy"/>
+                            <constraint firstItem="rB5-bx-cWn" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="dJg-V1-CwQ"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="rB5-bx-cWn" secondAttribute="trailing" id="qZG-Ua-KT6"/>
+                        </constraints>
                     </view>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="iYj-Kq-Ea1" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -22,4 +49,13 @@
             <point key="canvasLocation" x="53" y="375"/>
         </scene>
     </scenes>
+    <resources>
+        <image name="newspaper.fill" catalog="system" width="128" height="112"/>
+        <namedColor name="primaryBackground">
+            <color red="0.99999994039535522" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="primaryLabel">
+            <color red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+    </resources>
 </document>
