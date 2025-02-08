@@ -8,13 +8,10 @@
 import Foundation
 
 protocol SettingsViewModelInputProtocol {
-
 }
 
 final class SettingsViewModel {
-
 }
 
 extension SettingsViewModel: SettingsViewModelInputProtocol {
-
 }

@@ -24,12 +24,12 @@ private extension TabBarController {
         let homeVC = createNav(
             with: "News",
             and: UIImage(systemName: "newspaper.fill"),
-            vc: HomeViewController()
+            vc: HomeViewController(viewModel: HomeViewModel())
         )
         let settingsVC = createNav(
             with: "Settings",
             and: UIImage(systemName: "gear"),
-            vc: SettingsViewController()
+            vc: SettingsViewController(viewModel: SettingsViewModel())
         )
         self.setViewControllers([homeVC, settingsVC], animated: false)
     }

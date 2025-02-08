@@ -8,13 +8,10 @@
 import Foundation
 
 protocol HomeViewModelInputProtocol {
-
 }
 
 final class HomeViewModel {
-
 }
 
 extension HomeViewModel: HomeViewModelInputProtocol {
-
 }
