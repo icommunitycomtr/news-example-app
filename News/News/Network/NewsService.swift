@@ -10,10 +10,14 @@ import Foundation
 // MARK: - NewsServiceProtocol
 
 protocol NewsServiceProtocol {
-    func fetchNews(
+    func searchNews(
         searchString: String,
         page: Int,
         pageSize: Int,
+        completion: @escaping (Result<NewsModel, NetworkError>) -> Void
+    )
+    func fetchTopNews(
+        country: String,
         completion: @escaping (Result<NewsModel, NetworkError>) -> Void
     )
 }
@@ -27,7 +31,7 @@ final class NewsService: NewsServiceProtocol {
         self.networkManager = networkManager
     }
 
-    func fetchNews(
+    func searchNews(
         searchString: String,
         page: Int = 1,
         pageSize: Int = 100,
@@ -41,6 +45,23 @@ final class NewsService: NewsServiceProtocol {
 
         networkManager.request(
             endpoint: "v2/everything",
+            queryItems: queryItems,
+            method: "GET",
+            headers: nil,
+            completion: completion
+        )
+    }
+
+    func fetchTopNews(
+        country: String,
+        completion: @escaping (Result<NewsModel, NetworkError>) -> Void
+    ) {
+        let queryItems = [
+            URLQueryItem(name: "country", value: "\(country)")
+        ]
+
+        networkManager.request(
+            endpoint: "v2/top-headlines",
             queryItems: queryItems,
             method: "GET",
             headers: nil,

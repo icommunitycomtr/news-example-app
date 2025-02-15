@@ -36,7 +36,7 @@ final class HomeViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         configureView()
-        viewModel.fetchNews()
+        viewModel.searchNews(searchString: "Apple")
     }
 }
 
