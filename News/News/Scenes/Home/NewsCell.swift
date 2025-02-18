@@ -5,8 +5,8 @@
 //  Created by Mert Ozseven on 17.02.2025.
 //
 
-import UIKit
 import SnapKit
+import UIKit
 
 final class NewsCell: UITableViewCell {
 
@@ -22,6 +22,7 @@ final class NewsCell: UITableViewCell {
         imageView.contentMode = .scaleAspectFill
         imageView.layer.cornerRadius = 12
         imageView.layer.masksToBounds = true
+        imageView.image = UIImage(named: "placeholder")
         return imageView
     }()
 
@@ -30,6 +31,7 @@ final class NewsCell: UITableViewCell {
         label.font = .preferredFont(forTextStyle: .headline)
         label.textColor = .label
         label.numberOfLines = 0
+        label.text = "Title"
         return label
     }()
 
@@ -37,6 +39,7 @@ final class NewsCell: UITableViewCell {
         let label = UILabel()
         label.font = .preferredFont(forTextStyle: .subheadline)
         label.textColor = .secondaryLabel
+        label.text = "Author"
         return label
     }()
 
@@ -58,12 +61,18 @@ final class NewsCell: UITableViewCell {
         let label = UILabel()
         label.font = .preferredFont(forTextStyle: .subheadline)
         label.textColor = .secondaryLabel
+        label.text = "24m ago"
         return label
     }()
 
     private let moreButton: UIButton = {
         let button = UIButton()
-        button.setImage(UIImage(systemName: "ellipsis"), for: .normal)
+        button.setImage(
+            UIImage(systemName: "ellipsis")?
+                .resized(to: CGSize(width: 24, height: 7))?
+                .withTintColor(.label),
+            for: .normal
+        )
         button.tintColor = .label
         return button
     }()
@@ -75,7 +84,7 @@ final class NewsCell: UITableViewCell {
         directionalLayoutMargins = NSDirectionalEdgeInsets(top: 24, leading: 16, bottom: 24, trailing: 16)
         configureView()
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -127,11 +136,12 @@ private extension NewsCell {
         dateLabel.snp.makeConstraints {
             $0.leading.equalTo(newsImageView.snp.trailing).offset(12)
             $0.bottom.equalTo(contentView.layoutMarginsGuide)
-            $0.height.equalTo(16)
+            $0.height.equalTo(24)
         }
         moreButton.snp.makeConstraints {
             $0.centerY.equalTo(dateLabel)
             $0.trailing.equalTo(contentView.layoutMarginsGuide)
+            $0.width.equalTo(24)
         }
     }
 }
