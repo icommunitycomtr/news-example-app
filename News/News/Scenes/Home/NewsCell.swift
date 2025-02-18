@@ -77,6 +77,12 @@ final class NewsCell: UITableViewCell {
         return button
     }()
 
+    private let separatorView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .separator
+        return view
+    }()
+
     // MARK: Inits
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -116,6 +122,7 @@ private extension NewsCell {
         contentView.addSubview(authorLabel)
         contentView.addSubview(dateLabel)
         contentView.addSubview(moreButton)
+        contentView.addSubview(separatorView)
     }
 
     func configureLayout() {
@@ -142,6 +149,11 @@ private extension NewsCell {
             $0.centerY.equalTo(dateLabel)
             $0.trailing.equalTo(contentView.layoutMarginsGuide)
             $0.width.equalTo(24)
+        }
+        separatorView.snp.makeConstraints {
+            $0.leading.trailing.equalTo(contentView.layoutMarginsGuide)
+            $0.bottom.equalToSuperview()
+            $0.height.equalTo(1)
         }
     }
 }
