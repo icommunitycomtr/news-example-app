@@ -40,17 +40,18 @@ final class NewsCell: UITableViewCell {
         label.font = .preferredFont(forTextStyle: .subheadline)
         label.textColor = .secondaryLabel
         label.text = "Author"
+        label.numberOfLines = 0
         return label
     }()
 
-    private let categoryLabel: UILabel = {
+    private let hourLabel: UILabel = {
         let label = UILabel()
         label.font = .preferredFont(forTextStyle: .subheadline)
         label.textColor = .systemBlue
         return label
     }()
 
-    private let categorySeperatorView: UIView = {
+    private let hourSeperatorView: UIView = {
         let view = UIView()
         view.backgroundColor = .separator
         view.layer.cornerRadius = 4
@@ -102,7 +103,8 @@ extension NewsCell {
     func configure(with title: String, author: String, date: String, imageUrl: String) {
         titleLabel.text = title
         authorLabel.text = author
-        dateLabel.text = date
+        hourLabel.text = date.formattedHourAndMinute() ?? "Unknown time"
+        dateLabel.text = date.timeAgoSinceDate() ?? "Unknown time"
         self.imageUrl = imageUrl
     }
 }
@@ -119,6 +121,8 @@ private extension NewsCell {
         contentView.addSubview(newsImageView)
         contentView.addSubview(titleLabel)
         contentView.addSubview(authorLabel)
+        contentView.addSubview(hourLabel)
+        contentView.addSubview(hourSeperatorView)
         contentView.addSubview(dateLabel)
         contentView.addSubview(moreButton)
         contentView.addSubview(separatorView)
@@ -135,13 +139,24 @@ private extension NewsCell {
             $0.trailing.equalTo(contentView.layoutMarginsGuide)
         }
         authorLabel.snp.makeConstraints {
-            $0.top.equalTo(titleLabel.snp.bottom).offset(4)
+            $0.top.equalTo(titleLabel.snp.bottom).offset(12)
             $0.leading.equalTo(newsImageView.snp.trailing).offset(12)
             $0.trailing.equalTo(contentView.layoutMarginsGuide)
         }
-        dateLabel.snp.makeConstraints {
+        hourLabel.snp.makeConstraints {
+            $0.top.equalTo(authorLabel.snp.bottom).offset(12)
             $0.leading.equalTo(newsImageView.snp.trailing).offset(12)
-            $0.top.equalTo(authorLabel.snp.bottom).offset(16)
+            $0.height.equalTo(24)
+        }
+        hourSeperatorView.snp.makeConstraints {
+            $0.leading.equalTo(hourLabel.snp.trailing).offset(12)
+            $0.centerY.equalTo(hourLabel)
+            $0.width.equalTo(8)
+            $0.height.equalTo(8)
+        }
+        dateLabel.snp.makeConstraints {
+            $0.leading.equalTo(hourSeperatorView.snp.trailing).offset(12)
+            $0.centerY.equalTo(hourLabel)
             $0.height.equalTo(24)
         }
         moreButton.snp.makeConstraints {
@@ -153,7 +168,7 @@ private extension NewsCell {
             $0.leading.trailing.equalTo(contentView.layoutMarginsGuide)
             $0.top.equalTo(dateLabel.snp.bottom).offset(32)
             $0.height.equalTo(1)
-            $0.bottom.equalTo(contentView.layoutMarginsGuide)
+            $0.bottom.equalToSuperview()
         }
     }
 }
