@@ -18,6 +18,8 @@ protocol NewsServiceProtocol {
     )
     func fetchTopNews(
         country: String,
+        pageSize: Int,
+        page: Int,
         completion: @escaping (Result<NewsModel, NetworkError>) -> Void
     )
 }
@@ -54,10 +56,14 @@ final class NewsService: NewsServiceProtocol {
 
     func fetchTopNews(
         country: String,
+        pageSize: Int = 100,
+        page: Int = 1,
         completion: @escaping (Result<NewsModel, NetworkError>) -> Void
     ) {
         let queryItems = [
-            URLQueryItem(name: "country", value: "\(country)")
+            URLQueryItem(name: "country", value: "\(country)"),
+            URLQueryItem(name: "pageSize", value: "\(pageSize)"),
+            URLQueryItem(name: "page", value: "\(page)")
         ]
 
         networkManager.request(

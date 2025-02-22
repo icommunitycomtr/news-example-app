@@ -69,7 +69,7 @@ private extension SplashViewController {
     }
 
     func fetchNews() {
-        newsService.fetchTopNews(country: "us") { [weak self] result in
+        newsService.fetchTopNews(country: "us", pageSize: 100, page: 1) { [weak self] result in
             DispatchQueue.main.async {
                 switch result {
                 case .success(let response):
@@ -95,7 +95,7 @@ private extension SplashViewController {
             }
             UIView.transition(
                 with: sceneDelegate.window!,
-                duration: 0.5,
+                duration: 0.7,
                 options: .transitionFlipFromRight,
                 animations: {
                     sceneDelegate.window?.rootViewController = tabBarController

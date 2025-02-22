@@ -11,6 +11,7 @@ import Foundation
 
 protocol HomeViewModelInputProtocol {
     func searchNews(searchString: String)
+
 }
 
 // MARK: - HomeViewModel
@@ -48,7 +49,11 @@ private extension HomeViewModel {
 
 extension HomeViewModel: HomeViewModelInputProtocol {
     func searchNews(searchString: String) {
-        newsService.searchNews(searchString: searchString, page: 1, pageSize: 100) { [weak self] result in
+        newsService.searchNews(
+            searchString: searchString,
+            page: 1,
+            pageSize: 100
+        ) { [weak self] result in
             DispatchQueue.main.async {
                 self?.handleNewsResponse(result: result)
             }
