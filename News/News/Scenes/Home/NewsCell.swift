@@ -5,6 +5,7 @@
 //  Created by Mert Ozseven on 17.02.2025.
 //
 
+import Kingfisher
 import SnapKit
 import UIKit
 
@@ -18,11 +19,9 @@ final class NewsCell: UITableViewCell {
 
     private lazy var newsImageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.image = UIImage(systemName: "newspaper")
         imageView.clipsToBounds = true
         imageView.contentMode = .scaleAspectFill
         imageView.layer.cornerRadius = 12
-        imageView.layer.masksToBounds = true
         return imageView
     }()
 
@@ -31,7 +30,6 @@ final class NewsCell: UITableViewCell {
         label.font = .preferredFont(forTextStyle: .headline)
         label.textColor = .label
         label.numberOfLines = 0
-        label.text = "Title"
         return label
     }()
 
@@ -39,7 +37,6 @@ final class NewsCell: UITableViewCell {
         let label = UILabel()
         label.font = .preferredFont(forTextStyle: .subheadline)
         label.textColor = .secondaryLabel
-        label.text = "Author"
         label.numberOfLines = 0
         return label
     }()
@@ -62,7 +59,6 @@ final class NewsCell: UITableViewCell {
         let label = UILabel()
         label.font = .preferredFont(forTextStyle: .subheadline)
         label.textColor = .secondaryLabel
-        label.text = "24m ago"
         return label
     }()
 
@@ -105,7 +101,7 @@ extension NewsCell {
         authorLabel.text = author
         hourLabel.text = date.formattedHourAndMinute() ?? "Unknown time"
         dateLabel.text = date.timeAgoSinceDate() ?? "Unknown time"
-        self.imageUrl = imageUrl
+        newsImageView.setImage(with: imageUrl)
     }
 }
 
