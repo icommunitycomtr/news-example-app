@@ -18,11 +18,11 @@ final class NewsCell: UITableViewCell {
 
     private lazy var newsImageView: UIImageView = {
         let imageView = UIImageView()
+        imageView.image = UIImage(systemName: "newspaper")
         imageView.clipsToBounds = true
         imageView.contentMode = .scaleAspectFill
         imageView.layer.cornerRadius = 12
         imageView.layer.masksToBounds = true
-        imageView.image = UIImage(named: "placeholder")
         return imageView
     }()
 
@@ -79,7 +79,7 @@ final class NewsCell: UITableViewCell {
 
     private let separatorView: UIView = {
         let view = UIView()
-        view.backgroundColor = .separator
+        view.backgroundColor = .systemGray6
         return view
     }()
 
@@ -87,7 +87,7 @@ final class NewsCell: UITableViewCell {
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        directionalLayoutMargins = NSDirectionalEdgeInsets(top: 24, leading: 16, bottom: 24, trailing: 16)
+        contentView.directionalLayoutMargins = NSDirectionalEdgeInsets(top: 24, leading: 16, bottom: 24, trailing: 16)
         configureView()
     }
 
@@ -99,12 +99,11 @@ final class NewsCell: UITableViewCell {
 // MARK: - Public Methods
 
 extension NewsCell {
-    func configure(with article: Article) {
-        titleLabel.text = article.title
-        authorLabel.text = article.author
-
-        dateLabel.text = article.publishedAt
-        imageUrl = article.urlToImage
+    func configure(with title: String, author: String, date: String, imageUrl: String) {
+        titleLabel.text = title
+        authorLabel.text = author
+        dateLabel.text = date
+        self.imageUrl = imageUrl
     }
 }
 
@@ -142,7 +141,7 @@ private extension NewsCell {
         }
         dateLabel.snp.makeConstraints {
             $0.leading.equalTo(newsImageView.snp.trailing).offset(12)
-            $0.bottom.equalTo(contentView.layoutMarginsGuide)
+            $0.top.equalTo(authorLabel.snp.bottom).offset(16)
             $0.height.equalTo(24)
         }
         moreButton.snp.makeConstraints {
@@ -152,8 +151,13 @@ private extension NewsCell {
         }
         separatorView.snp.makeConstraints {
             $0.leading.trailing.equalTo(contentView.layoutMarginsGuide)
-            $0.bottom.equalToSuperview()
+            $0.top.equalTo(dateLabel.snp.bottom).offset(32)
             $0.height.equalTo(1)
+            $0.bottom.equalTo(contentView.layoutMarginsGuide)
         }
     }
+}
+
+#Preview {
+    HomeViewController(viewModel: HomeViewModel(newsService: NewsService()))
 }

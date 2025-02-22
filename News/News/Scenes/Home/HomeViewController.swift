@@ -19,7 +19,16 @@ final class HomeViewController: UIViewController {
 
     // MARK: Properties
     private let viewModel: HomeViewModel
-    private let tableView = UITableView()
+    private lazy var tableView: UITableView = {
+        let tableView = UITableView()
+        tableView.dataSource = self
+        tableView.delegate = self
+        tableView.register(NewsCell.self, forCellReuseIdentifier: NewsCell.identifier)
+        tableView.separatorStyle = .none
+        tableView.estimatedRowHeight = 1
+        tableView.rowHeight = UITableView.automaticDimension
+        return tableView
+    }()
 
     // MARK: Inits
     init(viewModel: HomeViewModel) {
@@ -36,7 +45,7 @@ final class HomeViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         configureView()
-        viewModel.searchNews(searchString: "Turkey")
+        viewModel.fetchTopNews()
     }
 }
 
@@ -63,16 +72,29 @@ private extension HomeViewController {
     }
 }
 
-// MARK: - UITableViewDataSource & UITableViewDelegate
+// MARK: - UITableViewDelegate
 
-extension HomeViewController: UITableViewDataSource, UITableViewDelegate {
+extension HomeViewController: UITableViewDelegate {
+}
+
+// MARK: - UITableViewDelegate
+
+extension HomeViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         viewModel.news.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
-        cell.textLabel?.text = viewModel.news[indexPath.row].title
+        // swiftlint:disable:next line_length
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: NewsCell.identifier, for: indexPath) as? NewsCell else {
+            fatalError("Failed to dequeue cell")
+        }
+        cell.configure(
+            with: viewModel.news[indexPath.row].title ?? "",
+            author: viewModel.news[indexPath.row].author ?? "",
+            date: viewModel.news[indexPath.row].publishedAt ?? "",
+            imageUrl: viewModel.news[indexPath.row].urlToImage ?? ""
+        )
         return cell
     }
 }
@@ -87,4 +109,8 @@ extension HomeViewController: HomeViewModelOutputProtocol {
             print("Failed to fetch news")
         }
     }
+}
+
+#Preview {
+    HomeViewController(viewModel: HomeViewModel(newsService: NewsService()))
 }
