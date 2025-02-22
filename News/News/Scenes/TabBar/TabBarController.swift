@@ -10,6 +10,21 @@ import UIKit
 
 final class TabBarController: UITabBarController {
 
+    // MARK: Properties
+
+    private let news: [Article]
+
+    // MARK: Inits
+
+    init(news: [Article]) {
+        self.news = news
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
     // MARK: Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -24,7 +39,7 @@ private extension TabBarController {
         let homeVC = createNav(
             with: "News",
             and: UIImage(systemName: "newspaper.fill"),
-            vc: HomeViewController(viewModel: HomeViewModel(newsService: NewsService()))
+            vc: HomeViewController(viewModel: HomeViewModel(newsService: NewsService(), news: news))
         )
         let settingsVC = createNav(
             with: "Settings",

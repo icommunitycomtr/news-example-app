@@ -11,6 +11,10 @@ import UIKit
 final class SplashViewController: UIViewController {
 
     // MARK: Properties
+
+    private let newsService = NewsService()
+    private var fetchedNews: [Article] = []
+
     private let newsImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.image = UIImage(systemName: "newspaper.fill")
@@ -33,6 +37,8 @@ final class SplashViewController: UIViewController {
         super.viewDidLoad()
 
         configureView()
+        fetchNews()
+        navigateToHome()
     }
 }
 
@@ -42,7 +48,6 @@ private extension SplashViewController {
         view.backgroundColor = .primaryBackground
         addViews()
         configureLayout()
-        navigateToHome()
     }
 
     func addViews() {
@@ -63,20 +68,38 @@ private extension SplashViewController {
         }
     }
 
+    func fetchNews() {
+        newsService.fetchTopNews(country: "us") { [weak self] result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let response):
+                    self?.fetchedNews = response.articles
+                    self?.navigateToHome()
+
+                case .failure:
+                    print("Failed to fetch news")
+                    self?.navigateToHome()
+                }
+            }
+        }
+    }
+
     func navigateToHome() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
             guard let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate else {
                 return
             }
-            UIView.animate(withDuration: 0.25) {
-                sceneDelegate.window?.layer.opacity = 0
-            } completion: { _ in
-                sceneDelegate.window?.rootViewController = TabBarController()
-
-                UIView.animate(withDuration: 0.25) {
-                    sceneDelegate.window?.layer.opacity = 1
-                }
+            let tabBarController = TabBarController(news: self.fetchedNews)
+            if sceneDelegate.window?.rootViewController is TabBarController {
+                return
             }
+            UIView.transition(
+                with: sceneDelegate.window!,
+                duration: 0.5,
+                options: .transitionFlipFromRight,
+                animations: {
+                    sceneDelegate.window?.rootViewController = tabBarController
+                })
         }
     }
 }

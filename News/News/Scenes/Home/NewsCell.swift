@@ -111,11 +111,22 @@ extension NewsCell {
 private extension NewsCell {
     @objc func didTapMoreButton() {
         guard let url = url, let shareUrl = URL(string: url) else { return }
-        let activityVC = UIActivityViewController(activityItems: [shareUrl], applicationActivities: nil)
+
+        let openInBrowserActivity = OpenInBrowserActivity()
+        let activityVC = UIActivityViewController(
+            activityItems: [shareUrl],
+            applicationActivities: [openInBrowserActivity]
+        )
+
         if let topController = UIApplication.shared.connectedScenes
             .compactMap({ $0 as? UIWindowScene })
             .flatMap({ $0.windows })
             .first(where: { $0.isKeyWindow })?.rootViewController {
+
+            if let popoverController = activityVC.popoverPresentationController {
+                popoverController.sourceView = moreButton
+                popoverController.sourceRect = moreButton.bounds
+            }
 
             topController.present(activityVC, animated: true)
         }
