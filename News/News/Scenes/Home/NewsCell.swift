@@ -14,8 +14,7 @@ final class NewsCell: UITableViewCell {
     // MARK: Properties
 
     static let identifier = "NewsCell"
-
-    private var imageUrl: String?
+    private var url: String?
 
     private lazy var newsImageView: UIImageView = {
         let imageView = UIImageView()
@@ -62,7 +61,7 @@ final class NewsCell: UITableViewCell {
         return label
     }()
 
-    private let moreButton: UIButton = {
+    private lazy var moreButton: UIButton = {
         let button = UIButton()
         button.setImage(
             UIImage(systemName: "ellipsis")?
@@ -71,6 +70,7 @@ final class NewsCell: UITableViewCell {
             for: .normal
         )
         button.tintColor = .label
+        button.addTarget(self, action: #selector(didTapMoreButton), for: .touchUpInside)
         return button
     }()
 
@@ -96,12 +96,29 @@ final class NewsCell: UITableViewCell {
 // MARK: - Public Methods
 
 extension NewsCell {
-    func configure(with title: String, author: String, date: String, imageUrl: String) {
+    func configure(with title: String, author: String, date: String, imageUrl: String, url: String) {
         titleLabel.text = title
         authorLabel.text = author
         hourLabel.text = date.formattedHourAndMinute() ?? "Unknown time"
         dateLabel.text = date.timeAgoSinceDate() ?? "Unknown time"
+        self.url = url
         newsImageView.setImage(with: imageUrl)
+    }
+}
+
+// MARK: - Objective Methods
+
+private extension NewsCell {
+    @objc func didTapMoreButton() {
+        guard let url = url, let shareUrl = URL(string: url) else { return }
+        let activityVC = UIActivityViewController(activityItems: [shareUrl], applicationActivities: nil)
+        if let topController = UIApplication.shared.connectedScenes
+            .compactMap({ $0 as? UIWindowScene })
+            .flatMap({ $0.windows })
+            .first(where: { $0.isKeyWindow })?.rootViewController {
+
+            topController.present(activityVC, animated: true)
+        }
     }
 }
 

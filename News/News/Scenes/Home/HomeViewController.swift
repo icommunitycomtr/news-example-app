@@ -93,7 +93,8 @@ extension HomeViewController: UITableViewDataSource {
             with: viewModel.news[indexPath.row].title ?? "",
             author: viewModel.news[indexPath.row].author ?? "",
             date: viewModel.news[indexPath.row].publishedAt ?? "",
-            imageUrl: viewModel.news[indexPath.row].urlToImage ?? ""
+            imageUrl: viewModel.news[indexPath.row].urlToImage ?? "",
+            url: viewModel.news[indexPath.row].url ?? ""
         )
         return cell
     }
