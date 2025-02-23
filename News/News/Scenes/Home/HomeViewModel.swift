@@ -11,7 +11,6 @@ import Foundation
 
 protocol HomeViewModelInputProtocol {
     func searchNews(searchString: String)
-
 }
 
 // MARK: - HomeViewModel

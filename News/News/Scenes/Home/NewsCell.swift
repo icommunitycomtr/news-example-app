@@ -113,23 +113,29 @@ private extension NewsCell {
         guard let url = url, let shareUrl = URL(string: url) else { return }
 
         let openInBrowserActivity = OpenInBrowserActivity()
-        let activityVC = UIActivityViewController(
-            activityItems: [shareUrl],
-            applicationActivities: [openInBrowserActivity]
-        )
+        let shareAction = UIAction(title: "Share", image: UIImage(systemName: "square.and.arrow.up")) { _ in
+            let activityVC = UIActivityViewController(
+                activityItems: [shareUrl],
+                applicationActivities: [openInBrowserActivity]
+            )
 
-        if let topController = UIApplication.shared.connectedScenes
-            .compactMap({ $0 as? UIWindowScene })
-            .flatMap({ $0.windows })
-            .first(where: { $0.isKeyWindow })?.rootViewController {
+            if let topController = UIApplication.shared.connectedScenes
+                .compactMap({ $0 as? UIWindowScene })
+                .flatMap({ $0.windows })
+                .first(where: { $0.isKeyWindow })?.rootViewController {
 
-            if let popoverController = activityVC.popoverPresentationController {
-                popoverController.sourceView = moreButton
-                popoverController.sourceRect = moreButton.bounds
+                if let popoverController = activityVC.popoverPresentationController {
+                    popoverController.sourceView = self.moreButton
+                    popoverController.sourceRect = self.moreButton.bounds
+                }
+
+                topController.present(activityVC, animated: true)
             }
-
-            topController.present(activityVC, animated: true)
         }
+
+        let menu = UIMenu(title: "", children: [shareAction])
+        moreButton.menu = menu
+        moreButton.showsMenuAsPrimaryAction = true
     }
 }
 
@@ -195,8 +201,4 @@ private extension NewsCell {
             $0.bottom.equalToSuperview()
         }
     }
-}
-
-#Preview {
-    HomeViewController(viewModel: HomeViewModel(newsService: NewsService()))
 }
