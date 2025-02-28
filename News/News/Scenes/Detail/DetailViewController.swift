@@ -54,6 +54,16 @@ final class DetailViewController: UIViewController {
         return imageView
     }()
 
+    private lazy var authorLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Authors: \(viewModel.article.author ?? "Unknown")"
+        label.font = .preferredFont(forTextStyle: .subheadline)
+        label.numberOfLines = 0
+        label.textAlignment = .natural
+        label.textColor = .secondaryLabel
+        return label
+    }()
+
     private lazy var articleDescriptionLabel: UILabel = {
         let label = UILabel()
         label.text = viewModel.article.content
@@ -105,6 +115,7 @@ private extension DetailViewController {
         scrollView.addSubview(stackView)
         stackView.addArrangedSubview(titleLabel)
         stackView.addArrangedSubview(articleImageView)
+        stackView.addArrangedSubview(authorLabel)
         stackView.addArrangedSubview(articleDescriptionLabel)
     }
 
