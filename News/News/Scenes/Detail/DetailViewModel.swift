@@ -11,6 +11,16 @@ protocol DetailViewModelInputProtocol {
 }
 
 final class DetailViewModel {
+
+    // MARK: Properties
+
+    var article: Article
+
+    // MARK: Inits
+
+    init(article: Article) {
+        self.article = article
+    }
 }
 
 private extension DetailViewModel {

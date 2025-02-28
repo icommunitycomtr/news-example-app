@@ -28,7 +28,7 @@ final class NewsCell: UITableViewCell {
         let label = UILabel()
         label.font = .preferredFont(forTextStyle: .headline)
         label.textColor = .label
-        label.numberOfLines = 3
+        label.numberOfLines = 0
         return label
     }()
 
@@ -196,7 +196,8 @@ private extension NewsCell {
         }
         separatorView.snp.makeConstraints {
             $0.leading.trailing.equalTo(contentView.layoutMarginsGuide)
-            $0.top.equalTo(newsImageView.snp.bottom).offset(24)
+            $0.top.equalTo(newsImageView.snp.bottom).offset(24).priority(.low)
+            $0.top.greaterThanOrEqualTo(hourLabel.snp.bottom).offset(24).priority(.high)
             $0.height.equalTo(1)
             $0.bottom.equalToSuperview()
         }

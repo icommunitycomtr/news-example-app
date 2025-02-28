@@ -46,6 +46,11 @@ final class HomeViewController: UIViewController {
         super.viewDidLoad()
         configureView()
     }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.navigationBar.prefersLargeTitles = true
+    }
 }
 
 // MARK: - Private Methods
@@ -101,6 +106,10 @@ extension HomeViewController: UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
+        navigationController?.pushViewController(
+            DetailViewController(viewModel: DetailViewModel(article: viewModel.news[indexPath.row])),
+            animated: true
+        )
     }
 }
 
@@ -114,8 +123,4 @@ extension HomeViewController: HomeViewModelOutputProtocol {
             print("Failed to fetch news")
         }
     }
-}
-
-#Preview {
-    HomeViewController(viewModel: HomeViewModel(newsService: NewsService()))
 }
