@@ -97,6 +97,7 @@ private extension DetailViewController {
         view.backgroundColor = .systemBackground
         addViews()
         configureLayout()
+        setupNavigationBar()
     }
 
     func addViews() {
@@ -118,8 +119,18 @@ private extension DetailViewController {
         }
         articleImageView.snp.makeConstraints {
             $0.width.equalToSuperview()
-            $0.height.equalTo(200)
+            $0.height.equalTo(240)
         }
+    }
+
+    func setupNavigationBar() {
+        let shareButton = UIBarButtonItem(
+            image: UIImage(systemName: "square.and.arrow.up"),
+            style: .plain,
+            target: self,
+            action: #selector(didTapShareButton)
+        )
+        navigationItem.rightBarButtonItem = shareButton
     }
 }
 
@@ -130,5 +141,21 @@ private extension DetailViewController {
         let previewVC = ImagePreviewViewController(imageURL: viewModel.article.urlToImage)
         previewVC.modalPresentationStyle = .fullScreen
         present(previewVC, animated: true)
+    }
+
+    @objc func didTapShareButton() {
+        guard let urlString = viewModel.article.url, let shareUrl = URL(string: urlString) else { return }
+
+        let openInBrowserActivity = OpenInBrowserActivity()
+        let activityVC = UIActivityViewController(
+            activityItems: [shareUrl],
+            applicationActivities: [openInBrowserActivity]
+        )
+
+        if let popoverController = activityVC.popoverPresentationController {
+            popoverController.barButtonItem = navigationItem.rightBarButtonItem
+        }
+
+        present(activityVC, animated: true)
     }
 }
