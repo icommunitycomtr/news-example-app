@@ -43,7 +43,7 @@ final class NewsCell: UITableViewCell {
     private let hourLabel: UILabel = {
         let label = UILabel()
         label.font = .preferredFont(forTextStyle: .subheadline)
-        label.textColor = .init(hex: "69BDFD")
+        label.textColor = .systemBlue
         return label
     }()
 

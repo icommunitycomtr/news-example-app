@@ -26,7 +26,7 @@ final class SplashViewController: UIViewController {
     private let newsLabel: UILabel = {
         let label = UILabel()
         label.text = "Mert News"
-        label.textColor = .primaryLabel
+        label.textColor = .label
         label.font = .systemFont(ofSize: 32, weight: .bold)
         label.textAlignment = .center
         return label
@@ -45,7 +45,7 @@ final class SplashViewController: UIViewController {
 // MARK: - Private Methods
 private extension SplashViewController {
     func configureView() {
-        view.backgroundColor = .primaryBackground
+        view.backgroundColor = .systemBackground
         addViews()
         configureLayout()
     }

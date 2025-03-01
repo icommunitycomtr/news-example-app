@@ -21,12 +21,17 @@ final class HomeViewModel {
     // MARK: Properties
     private let newsService: NewsServiceProtocol
     weak var output: HomeViewModelOutputProtocol?
+
     var news: [Article]
+    var filteredNews: [Article] = []
+    var isSearching: Bool = false
+    private var searchWorkItem: DispatchWorkItem?
 
     // MARK: Init
     init(newsService: NewsServiceProtocol, news: [Article] = []) {
         self.newsService = newsService
         self.news = news
+        self.filteredNews = news
     }
 }
 
@@ -37,10 +42,15 @@ private extension HomeViewModel {
         switch result {
         case .success(let response):
             self.news = response.articles
-            output?.didFetchNews(success: true)
+            self.filteredNews = response.articles
+            DispatchQueue.main.async {
+                self.output?.didFetchNews(success: true)
+            }
 
         case .failure:
-            output?.didFetchNews(success: false)
+            DispatchQueue.main.async {
+                self.output?.didFetchNews(success: false)
+            }
         }
     }
 }
@@ -49,15 +59,39 @@ private extension HomeViewModel {
 
 extension HomeViewModel: HomeViewModelInputProtocol {
     func searchNews(searchString: String) {
-        newsService.searchNews(
-            searchString: searchString,
-            page: 1,
-            pageSize: 100
-        ) { [weak self] result in
-            DispatchQueue.main.async {
-                self?.handleNewsResponse(result: result)
+        searchWorkItem?.cancel()
+
+        let workItem = DispatchWorkItem { [weak self] in
+            guard let self = self else { return }
+
+            if searchString.isEmpty {
+                self.isSearching = false
+                self.filteredNews = self.news
+                DispatchQueue.main.async {
+                    self.output?.didFetchNews(success: true)
+                }
+            } else {
+                self.isSearching = true
+                self.newsService.searchNews(
+                    searchString: searchString,
+                    page: 1,
+                    pageSize: 100
+                ) { result in
+                    DispatchQueue.main.async {
+                        switch result {
+                        case .success(let response):
+                            self.filteredNews = response.articles
+                            self.output?.didFetchNews(success: true)
+                        case .failure:
+                            self.output?.didFetchNews(success: false)
+                        }
+                    }
+                }
             }
         }
+
+        searchWorkItem = workItem
+        DispatchQueue.global().asyncAfter(deadline: .now() + 0.5, execute: workItem)
     }
 
     func fetchTopNews() {

@@ -160,7 +160,19 @@ extension SettingsViewController: SettingsViewModelOutputProtocol {
     }
 
     func didFetchNotificationStatus(isEnabled: Bool) {
-        tableView.reloadData()
+        if isEnabled {
+            UNUserNotificationCenter.current().requestAuthorization(
+                options: [.alert, .sound, .badge]
+            ) { granted, _ in
+                DispatchQueue.main.async {
+                    if !granted {
+                        print("Notifications are enabled")
+                    }
+                }
+            }
+        } else {
+            print("Notifications are disabled")
+        }
     }
 
     func openExternalLink(url: String) {
