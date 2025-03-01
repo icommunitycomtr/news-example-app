@@ -20,6 +20,7 @@ protocol SettingsViewModelOutputProtocol: AnyObject {
     func didUpdateTheme(isDarkMode: Bool)
     func didFetchNotificationStatus(isEnabled: Bool)
     func openExternalLink(url: String)
+    func promptAppReview()
 }
 
 final class SettingsViewModel {
@@ -43,7 +44,8 @@ final class SettingsViewModel {
         .legal([
             SettingItem(title: "Privacy Policy", icon: "text.document.fill", type: .defaultItem),
             SettingItem(title: "Terms of Use", icon: "checkmark.shield.fill", type: .defaultItem)
-        ])
+        ]),
+        .version([])
     ]
 }
 
@@ -85,7 +87,7 @@ extension SettingsViewModel: SettingsViewModelInputProtocol {
         case .defaultItem:
             switch item.title {
             case "Rate Us":
-                output?.openExternalLink(url: "https://apps.apple.com/tr/app/id6499512656")
+                output?.promptAppReview()
 
             case "Privacy Policy":
                 output?.openExternalLink(url: "https://mertozseven.com")

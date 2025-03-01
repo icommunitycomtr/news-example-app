@@ -5,6 +5,8 @@
 //  Created by Mert Ozseven on 7.02.2025.
 //
 
+import SafariServices
+import StoreKit
 import UIKit
 
 final class SettingsViewController: UIViewController {
@@ -12,6 +14,12 @@ final class SettingsViewController: UIViewController {
     // MARK: Properties
 
     private let viewModel: SettingsViewModel
+
+    private var appVersion: String {
+        let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "Unknown"
+        let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "Unknown"
+        return "Version \(version) (\(build))"
+    }
 
     private lazy var tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .insetGrouped)
@@ -72,12 +80,31 @@ extension SettingsViewController: UITableViewDataSource, UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        viewModel.settingsSections[section].items.count
+        let sectionType = viewModel.settingsSections[section]
+        switch sectionType {
+        case .version:
+            return 1
+
+        default:
+            return sectionType.items.count
+        }
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
-        let item = viewModel.settingsSections[indexPath.section].items[indexPath.row]
+
+        let sectionType = viewModel.settingsSections[indexPath.section]
+
+        if case .version = sectionType {
+            cell.textLabel?.text = appVersion
+            cell.textLabel?.textAlignment = .center
+            cell.textLabel?.textColor = .secondaryLabel
+            cell.selectionStyle = .none
+            cell.backgroundColor = .clear
+            return cell
+        }
+
+        let item = sectionType.items[indexPath.row]
 
         cell.textLabel?.text = item.title
         cell.imageView?.image = UIImage(systemName: item.icon)
@@ -138,6 +165,15 @@ extension SettingsViewController: SettingsViewModelOutputProtocol {
 
     func openExternalLink(url: String) {
         guard let url = URL(string: url) else { return }
-        UIApplication.shared.open(url)
+
+        let safariVC = SFSafariViewController(url: url)
+        safariVC.modalPresentationStyle = .fullScreen
+        present(safariVC, animated: true)
+    }
+
+    func promptAppReview() {
+        if let windowScene = view.window?.windowScene {
+            SKStoreReviewController.requestReview(in: windowScene)
+        }
     }
 }

@@ -12,10 +12,15 @@ enum SettingsSection {
     case notifications([SettingItem])
     case general([SettingItem])
     case legal([SettingItem])
+    case version([SettingItem])
 
     var items: [SettingItem] {
         switch self {
-        case .appearance(let items), .notifications(let items), .general(let items), .legal(let items):
+        case .appearance(let items),
+                .notifications(let items),
+                .general(let items),
+                .legal(let items),
+                .version(let items):
             return items
         }
     }
