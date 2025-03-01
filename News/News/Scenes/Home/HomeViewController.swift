@@ -73,6 +73,12 @@ private extension HomeViewController {
             $0.edges.equalToSuperview()
         }
     }
+
+    func fetchNewsIfNeeded() {
+        if viewModel.news.isEmpty {
+            viewModel.fetchTopNews()
+        }
+    }
 }
 
 // MARK: - UITableViewDelegate
@@ -84,7 +90,9 @@ extension HomeViewController: UITableViewDelegate {
 
 extension HomeViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        print(viewModel.news.count)
+        if viewModel.news.isEmpty {
+            fetchNewsIfNeeded()
+        }
         return viewModel.news.count
     }
 

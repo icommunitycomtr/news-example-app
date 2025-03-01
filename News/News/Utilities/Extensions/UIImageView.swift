@@ -21,7 +21,8 @@ extension UIImageView {
                 .scaleFactor(UIScreen.main.scale),
                 .cacheOriginalImage,
                 .transition(.fade(0.3)),
-                .memoryCacheExpiration(.seconds(300))
+                .memoryCacheExpiration(.seconds(300)),
+                .backgroundDecode
             ]
         )
     }

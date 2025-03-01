@@ -11,6 +11,7 @@ import Foundation
 
 protocol HomeViewModelInputProtocol {
     func searchNews(searchString: String)
+    func fetchTopNews()
 }
 
 // MARK: - HomeViewModel
@@ -52,6 +53,18 @@ extension HomeViewModel: HomeViewModelInputProtocol {
             searchString: searchString,
             page: 1,
             pageSize: 100
+        ) { [weak self] result in
+            DispatchQueue.main.async {
+                self?.handleNewsResponse(result: result)
+            }
+        }
+    }
+
+    func fetchTopNews() {
+        newsService.fetchTopNews(
+            country: "us",
+            pageSize: 100,
+            page: 1
         ) { [weak self] result in
             DispatchQueue.main.async {
                 self?.handleNewsResponse(result: result)
