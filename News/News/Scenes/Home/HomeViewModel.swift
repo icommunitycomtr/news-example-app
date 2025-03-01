@@ -82,6 +82,7 @@ extension HomeViewModel: HomeViewModelInputProtocol {
                         case .success(let response):
                             self.filteredNews = response.articles
                             self.output?.didFetchNews(success: true)
+
                         case .failure:
                             self.output?.didFetchNews(success: false)
                         }
