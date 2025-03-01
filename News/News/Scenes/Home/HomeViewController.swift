@@ -5,6 +5,7 @@
 //  Created by Mert Ozseven on 4.02.2025.
 //
 
+import SnapKit
 import UIKit
 
 // MARK: - HomeViewModelOutputProtocol
@@ -44,6 +45,7 @@ final class HomeViewController: UIViewController {
     // MARK: Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
+
         configureView()
     }
 
@@ -57,22 +59,19 @@ final class HomeViewController: UIViewController {
 
 private extension HomeViewController {
     func configureView() {
-        view.backgroundColor = .white
-        setupTableView()
+        view.backgroundColor = .systemBackground
+        addViews()
+        configureLayout()
     }
 
-    func setupTableView() {
-        tableView.dataSource = self
-        tableView.delegate = self
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
+    func addViews() {
         view.addSubview(tableView)
-        tableView.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            tableView.topAnchor.constraint(equalTo: view.topAnchor),
-            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
-        ])
+    }
+
+    func configureLayout() {
+        tableView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+        }
     }
 }
 

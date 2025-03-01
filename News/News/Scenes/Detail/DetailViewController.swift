@@ -66,7 +66,8 @@ final class DetailViewController: UIViewController {
 
     private lazy var articleDescriptionLabel: UILabel = {
         let label = UILabel()
-        label.text = viewModel.article.content
+        // swiftlint:disable:next line_length
+        label.text = "\(viewModel.article.content ?? "")\n\n\(viewModel.article.description ?? "")\n\n\(viewModel.article.content ?? "")\n\n\(viewModel.article.description ?? "")\n\n\(viewModel.article.content ?? "")\n\n\(viewModel.article.description ?? "")"
         label.font = .preferredFont(forTextStyle: .body)
         label.numberOfLines = 0
         label.textAlignment = .natural
