@@ -99,7 +99,7 @@ extension SettingsViewController: UITableViewDataSource, UITableViewDelegate {
             cell.textLabel?.text = appVersion
             cell.textLabel?.textAlignment = .center
             cell.textLabel?.textColor = .secondaryLabel
-            cell.selectionStyle = .none
+            cell.isUserInteractionEnabled = false
             cell.backgroundColor = .clear
             return cell
         }
