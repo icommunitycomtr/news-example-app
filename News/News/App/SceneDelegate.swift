@@ -10,19 +10,28 @@ import UIKit
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
+        private let themeKey = "selectedTheme"
 
-    func scene(
-        _ scene: UIScene,
-        willConnectTo session: UISceneSession,
-        options connectionOptions: UIScene.ConnectionOptions
-    ) {
-        guard let windowScene = (scene as? UIWindowScene) else { return }
-        let window = UIWindow(windowScene: windowScene)
-        self.window = window
-        let navigationController = UINavigationController(rootViewController: SplashViewController())
-        window.rootViewController = navigationController
-        window.makeKeyAndVisible()
-    }
+        func scene(
+            _ scene: UIScene,
+            willConnectTo session: UISceneSession,
+            options connectionOptions: UIScene.ConnectionOptions
+        ) {
+            guard let windowScene = (scene as? UIWindowScene) else { return }
+            let window = UIWindow(windowScene: windowScene)
+            self.window = window
+
+            applySavedTheme()
+
+            let navigationController = UINavigationController(rootViewController: SplashViewController())
+            window.rootViewController = navigationController
+            window.makeKeyAndVisible()
+        }
+
+        private func applySavedTheme() {
+            let isDarkMode = UserDefaults.standard.bool(forKey: themeKey)
+            window?.overrideUserInterfaceStyle = isDarkMode ? .dark : .light
+        }
 
     func sceneDidDisconnect(_ scene: UIScene) {
         // Called as the scene is being released by the system.
