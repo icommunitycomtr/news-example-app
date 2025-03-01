@@ -16,6 +16,7 @@ protocol NewsServiceProtocol {
         pageSize: Int,
         completion: @escaping (Result<NewsModel, NetworkError>) -> Void
     )
+
     func fetchTopNews(
         country: String,
         pageSize: Int,
@@ -28,10 +29,14 @@ protocol NewsServiceProtocol {
 
 final class NewsService: NewsServiceProtocol {
     private let networkManager: NetworkManagerProtocol
+    private let baseURL = "https://newsapi.org/v2/"
+    private let apiKey = "fdf8971b63be48cfb32b1162cc295a67"
 
     init(networkManager: NetworkManagerProtocol = NetworkManager()) {
         self.networkManager = networkManager
     }
+
+    // MARK: Search News
 
     func searchNews(
         searchString: String,
@@ -39,20 +44,28 @@ final class NewsService: NewsServiceProtocol {
         pageSize: Int = 100,
         completion: @escaping (Result<NewsModel, NetworkError>) -> Void
     ) {
-        let queryItems = [
+        var urlComponents = URLComponents(string: baseURL + "everything")
+        urlComponents?.queryItems = [
             URLQueryItem(name: "q", value: searchString),
             URLQueryItem(name: "page", value: "\(page)"),
-            URLQueryItem(name: "pageSize", value: "\(pageSize)")
+            URLQueryItem(name: "pageSize", value: "\(pageSize)"),
+            URLQueryItem(name: "apiKey", value: apiKey)
         ]
 
+        guard let url = urlComponents?.url else {
+            completion(.failure(.invalidRequest))
+            return
+        }
+
         networkManager.request(
-            endpoint: "v2/everything",
-            queryItems: queryItems,
-            method: "GET",
+            url: url,
+            method: .GET,
             headers: nil,
             completion: completion
         )
     }
+
+    // MARK: Fetch Top News
 
     func fetchTopNews(
         country: String,
@@ -60,16 +73,22 @@ final class NewsService: NewsServiceProtocol {
         page: Int = 1,
         completion: @escaping (Result<NewsModel, NetworkError>) -> Void
     ) {
-        let queryItems = [
-            URLQueryItem(name: "country", value: "\(country)"),
+        var urlComponents = URLComponents(string: baseURL + "top-headlines")
+        urlComponents?.queryItems = [
+            URLQueryItem(name: "country", value: country),
             URLQueryItem(name: "pageSize", value: "\(pageSize)"),
-            URLQueryItem(name: "page", value: "\(page)")
+            URLQueryItem(name: "page", value: "\(page)"),
+            URLQueryItem(name: "apiKey", value: apiKey)
         ]
 
+        guard let url = urlComponents?.url else {
+            completion(.failure(.invalidRequest))
+            return
+        }
+
         networkManager.request(
-            endpoint: "v2/top-headlines",
-            queryItems: queryItems,
-            method: "GET",
+            url: url,
+            method: .GET,
             headers: nil,
             completion: completion
         )
