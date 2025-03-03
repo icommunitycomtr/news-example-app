@@ -20,7 +20,7 @@ extension UIImageView {
             options: [
                 .scaleFactor(UIScreen.main.scale),
                 .cacheOriginalImage,
-                .transition(.fade(0.3)),
+                .transition(.fade(0.1)),
                 .memoryCacheExpiration(.seconds(300)),
                 .backgroundDecode
             ]

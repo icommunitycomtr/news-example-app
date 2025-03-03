@@ -5,6 +5,7 @@
 //  Created by Mert Ozseven on 4.02.2025.
 //
 
+import Kingfisher
 import SnapKit
 import UIKit
 
@@ -35,7 +36,7 @@ final class HomeViewController: UIViewController {
         tableView.delegate = self
         tableView.register(NewsCell.self, forCellReuseIdentifier: NewsCell.identifier)
         tableView.separatorStyle = .none
-        tableView.estimatedRowHeight = 1
+        tableView.estimatedRowHeight = 200
         tableView.rowHeight = UITableView.automaticDimension
         return tableView
     }()
@@ -141,6 +142,48 @@ extension HomeViewController: UITableViewDataSource {
         tableView.deselectRow(at: indexPath, animated: true)
         let detailVC = DetailViewController(viewModel: DetailViewModel(article: viewModel.filteredNews[indexPath.row]))
         navigationController?.pushViewController(detailVC, animated: true)
+    }
+
+    func tableView(_ tableView: UITableView,
+                   willDisplay cell: UITableViewCell,
+                   forRowAt indexPath: IndexPath) {
+        let lastRow = viewModel.filteredNews.count - 1
+        if indexPath.row == lastRow {
+            loadMoreIfNeeded()
+        }
+    }
+
+    func tableView(
+        _ tableView: UITableView,
+        didEndDisplaying cell: UITableViewCell,
+        forRowAt indexPath: IndexPath
+    ) {
+        guard let newsCell = cell as? NewsCell else { return }
+        newsCell.cancelImageDownload()
+        newsCell.clearImage()
+    }
+
+    func tableView(_ tableView: UITableView, prefetchRowsAt indexPaths: [IndexPath]) {
+        for indexPath in indexPaths where indexPath.row < viewModel.filteredNews.count {
+            let article = viewModel.filteredNews[indexPath.row]
+            guard let imageUrlString = article.urlToImage,
+                  let imageUrl = URL(string: imageUrlString) else {
+                continue
+            }
+            ImagePrefetcher(resources: [imageUrl]).start()
+        }
+    }
+
+    private func loadMoreIfNeeded() {
+        if viewModel.isSearching {
+            guard let searchTerm = searchController.searchBar.text,
+                  !searchTerm.isEmpty else {
+                return
+            }
+            viewModel.searchNews(searchString: searchTerm, isLoadMore: true)
+        } else {
+            viewModel.fetchTopNews(isLoadMore: true)
+        }
     }
 }
 

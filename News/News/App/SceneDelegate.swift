@@ -5,33 +5,37 @@
 //  Created by Mert Ozseven on 4.02.2025.
 //
 
+import Kingfisher
 import UIKit
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
-        private let themeKey = "selectedTheme"
+    private let themeKey = "selectedTheme"
 
-        func scene(
-            _ scene: UIScene,
-            willConnectTo session: UISceneSession,
-            options connectionOptions: UIScene.ConnectionOptions
-        ) {
-            guard let windowScene = (scene as? UIWindowScene) else { return }
-            let window = UIWindow(windowScene: windowScene)
-            self.window = window
+    func scene(
+        _ scene: UIScene,
+        willConnectTo session: UISceneSession,
+        options connectionOptions: UIScene.ConnectionOptions
+    ) {
+        guard let windowScene = (scene as? UIWindowScene) else { return }
+        let window = UIWindow(windowScene: windowScene)
+        self.window = window
 
-            applySavedTheme()
+        applySavedTheme()
 
-            let navigationController = UINavigationController(rootViewController: SplashViewController())
-            window.rootViewController = navigationController
-            window.makeKeyAndVisible()
-        }
+        KingfisherManager.shared.cache.memoryStorage.config.totalCostLimit = 50 * 1024 * 1024
+        KingfisherManager.shared.cache.memoryStorage.config.expiration = .seconds(300)
 
-        private func applySavedTheme() {
-            let isDarkMode = UserDefaults.standard.bool(forKey: themeKey)
-            window?.overrideUserInterfaceStyle = isDarkMode ? .dark : .light
-        }
+        let navigationController = UINavigationController(rootViewController: SplashViewController())
+        window.rootViewController = navigationController
+        window.makeKeyAndVisible()
+    }
+
+    private func applySavedTheme() {
+        let isDarkMode = UserDefaults.standard.bool(forKey: themeKey)
+        window?.overrideUserInterfaceStyle = isDarkMode ? .dark : .light
+    }
 
     func sceneDidDisconnect(_ scene: UIScene) {
         // Called as the scene is being released by the system.

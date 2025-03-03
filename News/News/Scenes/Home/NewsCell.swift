@@ -21,6 +21,7 @@ final class NewsCell: UITableViewCell {
         imageView.clipsToBounds = true
         imageView.contentMode = .scaleAspectFill
         imageView.layer.cornerRadius = 12
+        imageView.image = UIImage(systemName: "photo.artframe")
         return imageView
     }()
 
@@ -103,6 +104,14 @@ extension NewsCell {
         dateLabel.text = date.timeAgoSinceDate() ?? "Unknown time"
         self.url = url
         newsImageView.setImage(with: imageUrl)
+    }
+
+    func cancelImageDownload() {
+        newsImageView.kf.cancelDownloadTask()
+    }
+
+    func clearImage() {
+        newsImageView.image = nil
     }
 }
 
