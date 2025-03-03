@@ -30,7 +30,7 @@ protocol NewsServiceProtocol {
 final class NewsService: NewsServiceProtocol {
     private let networkManager: NetworkManagerProtocol
     private let baseURL = "https://newsapi.org/v2/"
-    private let apiKey = "f16014140239453382ddc030d9179acb"
+    private let apiKey = "93f393887ad740c3890eca9341893290"
 
     init(networkManager: NetworkManagerProtocol = NetworkManager()) {
         self.networkManager = networkManager

@@ -92,7 +92,7 @@ extension HomeViewModel: HomeViewModelInputProtocol {
         }
 
         searchWorkItem = workItem
-        let delay: TimeInterval = isLoadMore ? 0 : 0.5
+        let delay: TimeInterval = isLoadMore ? 0 : 1
         DispatchQueue.global().asyncAfter(deadline: .now() + delay, execute: workItem)
     }
 

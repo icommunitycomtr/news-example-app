@@ -200,7 +200,14 @@ extension HomeViewController: HomeViewModelOutputProtocol {
 // MARK: - UISearchBarDelegate
 extension HomeViewController: UISearchBarDelegate {
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        viewModel.searchNews(searchString: searchText)
+        if searchText.isEmpty {
+            viewModel.searchNews(searchString: "")
+            return
+        }
+
+        if searchText.count >= 3 {
+            viewModel.searchNews(searchString: searchText)
+        }
     }
 
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
