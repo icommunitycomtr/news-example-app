@@ -33,7 +33,6 @@ final class HomeViewController: UIViewController {
     private lazy var tableView: UITableView = {
         let tableView = UITableView()
         tableView.dataSource = self
-        tableView.delegate = self
         tableView.register(NewsCell.self, forCellReuseIdentifier: NewsCell.identifier)
         tableView.separatorStyle = .none
         tableView.estimatedRowHeight = 200
@@ -107,10 +106,6 @@ private extension HomeViewController {
     func updateEmptyStateVisibility() {
         emptyStateLabel.isHidden = !viewModel.filteredNews.isEmpty
     }
-}
-
-// MARK: - UITableViewDelegate
-extension HomeViewController: UITableViewDelegate {
 }
 
 // MARK: - UITableViewDataSource
