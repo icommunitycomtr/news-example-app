@@ -39,23 +39,27 @@ private extension TabBarController {
         let homeVC = createNav(
             with: "News",
             and: UIImage(systemName: "newspaper.fill"),
-            vc: HomeViewController(viewModel: HomeViewModel(newsService: NewsService(), news: news))
+            viewController: HomeViewController(viewModel: HomeViewModel(newsService: NewsService(), news: news))
         )
         let settingsVC = createNav(
             with: "Settings",
             and: UIImage(systemName: "gear"),
-            vc: SettingsViewController(viewModel: SettingsViewModel())
+            viewController: SettingsViewController(viewModel: SettingsViewModel())
         )
         self.setViewControllers([homeVC, settingsVC], animated: false)
     }
 
-    func createNav(with title: String, and image: UIImage?, vc: UIViewController) -> UINavigationController {
-        let nav = UINavigationController(rootViewController: vc)
+    func createNav(
+        with title: String,
+        and image: UIImage?,
+        viewController: UIViewController
+    ) -> UINavigationController {
+        let nav = UINavigationController(rootViewController: viewController)
         nav.tabBarItem.title = title
         nav.tabBarItem.image = image
-        vc.title = title
+        viewController.title = title
         nav.navigationBar.prefersLargeTitles = true
-        vc.navigationItem.largeTitleDisplayMode = .always
+        viewController.navigationItem.largeTitleDisplayMode = .always
 
         return nav
     }
