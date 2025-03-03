@@ -33,6 +33,7 @@ final class HomeViewController: UIViewController {
     private lazy var tableView: UITableView = {
         let tableView = UITableView()
         tableView.dataSource = self
+        tableView.delegate = self
         tableView.register(NewsCell.self, forCellReuseIdentifier: NewsCell.identifier)
         tableView.separatorStyle = .none
         tableView.estimatedRowHeight = 200
@@ -180,6 +181,10 @@ extension HomeViewController: UITableViewDataSource {
             viewModel.fetchTopNews(isLoadMore: true)
         }
     }
+}
+
+// MARK: - UITableViewDelegate
+extension HomeViewController: UITableViewDelegate {
 }
 
 // MARK: - HomeViewModelOutputProtocol
