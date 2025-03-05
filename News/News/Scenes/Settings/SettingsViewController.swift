@@ -194,7 +194,7 @@ extension SettingsViewController: SettingsViewModelOutputProtocol {
         guard let url = URL(string: url) else { return }
 
         let safariVC = SFSafariViewController(url: url)
-        safariVC.modalPresentationStyle = .fullScreen
+        safariVC.modalPresentationStyle = .overFullScreen
         present(safariVC, animated: true)
     }
 
