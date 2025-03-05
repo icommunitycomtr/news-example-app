@@ -10,7 +10,7 @@ import Kingfisher
 
 // MARK: - HomeViewModelInputProtocol
 
-protocol HomeViewModelInputProtocol {
+protocol HomeViewModelInputProtocol: AnyObject {
     func searchNews(searchString: String, isLoadMore: Bool)
     func fetchTopNews(isLoadMore: Bool)
 }
@@ -22,7 +22,8 @@ final class HomeViewModel {
     // MARK: Properties
 
     private let newsService: NewsServiceProtocol
-    weak var output: HomeViewModelOutputProtocol?
+    weak var inputDelegate: HomeViewModelInputProtocol?
+    weak var outputDelegate: HomeViewModelOutputProtocol?
 
     private var isLoading = false
     private var currentTopNewsPage = 2
@@ -43,6 +44,7 @@ final class HomeViewModel {
         self.newsService = newsService
         self.news = news
         self.filteredNews = news
+        inputDelegate = self
     }
 }
 
@@ -56,7 +58,7 @@ extension HomeViewModel: HomeViewModelInputProtocol {
             isSearching = false
             filteredNews = news
             DispatchQueue.main.async {
-                self.output?.didFetchNews(success: true)
+                self.outputDelegate?.didFetchNews(success: true)
             }
             return
         }
@@ -85,7 +87,7 @@ extension HomeViewModel: HomeViewModelInputProtocol {
 
                 case .failure:
                     DispatchQueue.main.async {
-                        self.output?.didFetchNews(success: false)
+                        self.outputDelegate?.didFetchNews(success: false)
                     }
                 }
             }
@@ -114,14 +116,14 @@ extension HomeViewModel: HomeViewModelInputProtocol {
 
             case .failure:
                 DispatchQueue.main.async {
-                    self.output?.didFetchNews(success: false)
+                    self.outputDelegate?.didFetchNews(success: false)
                 }
             }
         }
     }
 }
 
-// MARK: - Private Helpers
+// MARK: - Private Methods
 
 private extension HomeViewModel {
     func removeImages(urls: [String]) {
@@ -155,7 +157,7 @@ private extension HomeViewModel {
         }
 
         DispatchQueue.main.async {
-            self.output?.didFetchNews(success: true)
+            self.outputDelegate?.didFetchNews(success: true)
         }
     }
 
@@ -189,7 +191,7 @@ private extension HomeViewModel {
         }
 
         DispatchQueue.main.async {
-            self.output?.didFetchNews(success: true)
+            self.outputDelegate?.didFetchNews(success: true)
         }
     }
 }

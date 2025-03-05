@@ -8,6 +8,14 @@
 import SafariServices
 import StoreKit
 import UIKit
+import UserNotifications
+
+protocol SettingsViewModelOutputProtocol: AnyObject {
+    func didUpdateTheme(themeMode: Int)
+    func didFetchNotificationStatus(isEnabled: Bool)
+    func openExternalLink(url: String)
+    func promptAppReview()
+}
 
 final class SettingsViewController: UIViewController {
 
@@ -34,7 +42,7 @@ final class SettingsViewController: UIViewController {
     init(viewModel: SettingsViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
-        self.viewModel.output = self
+        self.viewModel.outputDelegate = self
     }
 
     required init?(coder: NSCoder) {
@@ -115,13 +123,13 @@ extension SettingsViewController: UITableViewDataSource, UITableViewDelegate {
         switch item.type {
         case .theme:
             let themeControl = UISegmentedControl(items: ["Light", "Dark"])
-            themeControl.selectedSegmentIndex = viewModel.fetchSavedTheme() ? 1 : 0
+            themeControl.selectedSegmentIndex = viewModel.inputDelegate?.fetchSavedTheme() ?? 0
             themeControl.addTarget(self, action: #selector(themeChanged(_:)), for: .valueChanged)
             cell.accessoryView = themeControl
 
         case .notification:
             let switchControl = UISwitch()
-            viewModel.fetchNotificationStatus { isAuthorized in
+            viewModel.inputDelegate?.fetchNotificationStatus { isAuthorized in
                 switchControl.isOn = isAuthorized
             }
             switchControl.addTarget(self, action: #selector(notificationToggled(_:)), for: .valueChanged)
@@ -136,26 +144,33 @@ extension SettingsViewController: UITableViewDataSource, UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let item = viewModel.settingsSections[indexPath.section].items[indexPath.row]
-        viewModel.handleSelection(for: item)
+        viewModel.inputDelegate?.handleSelection(for: item)
         tableView.deselectRow(at: indexPath, animated: true)
     }
 
     @objc private func themeChanged(_ sender: UISegmentedControl) {
-        let isDarkMode = sender.selectedSegmentIndex == 1
-        viewModel.updateTheme(isDarkMode: isDarkMode)
+        let themeMode = sender.selectedSegmentIndex
+        viewModel.inputDelegate?.updateTheme(themeMode: themeMode)
     }
 
     @objc private func notificationToggled(_ sender: UISwitch) {
-        viewModel.updateNotificationSettings(isEnabled: sender.isOn)
+        viewModel.inputDelegate?.updateNotificationSettings(isEnabled: sender.isOn)
     }
 }
 
 // MARK: - SettingsViewModelOutputProtocol
 
 extension SettingsViewController: SettingsViewModelOutputProtocol {
-    func didUpdateTheme(isDarkMode: Bool) {
+    func didUpdateTheme(themeMode: Int) {
+        let interfaceStyle: UIUserInterfaceStyle
+        switch themeMode {
+        case 0: interfaceStyle = .light
+        case 1: interfaceStyle = .dark
+        default: interfaceStyle = .light
+        }
+
         UIView.animate(withDuration: 0.3) {
-            self.view.window?.overrideUserInterfaceStyle = isDarkMode ? .dark : .light
+            self.view.window?.overrideUserInterfaceStyle = interfaceStyle
         }
     }
 

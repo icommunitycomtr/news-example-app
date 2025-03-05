@@ -33,6 +33,7 @@ final class SplashViewController: UIViewController {
     }()
 
     // MARK: Life Cycle
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -43,6 +44,7 @@ final class SplashViewController: UIViewController {
 }
 
 // MARK: - Private Methods
+
 private extension SplashViewController {
     func configureView() {
         view.backgroundColor = .systemBackground

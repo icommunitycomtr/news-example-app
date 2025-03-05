@@ -8,26 +8,20 @@
 import Foundation
 import UserNotifications
 
-protocol SettingsViewModelInputProtocol {
-    func updateTheme(isDarkMode: Bool)
-    func fetchSavedTheme() -> Bool
+protocol SettingsViewModelInputProtocol: AnyObject {
+    func updateTheme(themeMode: Int)
+    func fetchSavedTheme() -> Int
     func updateNotificationSettings(isEnabled: Bool)
     func fetchNotificationStatus(completion: @escaping (Bool) -> Void)
     func handleSelection(for item: SettingItem)
-}
-
-protocol SettingsViewModelOutputProtocol: AnyObject {
-    func didUpdateTheme(isDarkMode: Bool)
-    func didFetchNotificationStatus(isEnabled: Bool)
-    func openExternalLink(url: String)
-    func promptAppReview()
 }
 
 final class SettingsViewModel {
 
     // MARK: Properties
 
-    weak var output: SettingsViewModelOutputProtocol?
+    weak var inputDelegate: SettingsViewModelInputProtocol?
+    weak var outputDelegate: SettingsViewModelOutputProtocol?
 
     private let themeKey = "selectedTheme"
 
@@ -47,19 +41,23 @@ final class SettingsViewModel {
         ]),
         .version([])
     ]
+
+    init() {
+        inputDelegate = self
+    }
 }
 
 // MARK: - SettingsViewModelInputProtocol
 
 extension SettingsViewModel: SettingsViewModelInputProtocol {
 
-    func fetchSavedTheme() -> Bool {
-        UserDefaults.standard.bool(forKey: themeKey)
+    func fetchSavedTheme() -> Int {
+        UserDefaults.standard.integer(forKey: themeKey)
     }
 
-    func updateTheme(isDarkMode: Bool) {
-        UserDefaults.standard.setValue(isDarkMode, forKey: themeKey)
-        output?.didUpdateTheme(isDarkMode: isDarkMode)
+    func updateTheme(themeMode: Int) {
+        UserDefaults.standard.set(themeMode, forKey: themeKey)
+        outputDelegate?.didUpdateTheme(themeMode: themeMode)
     }
 
     func updateNotificationSettings(isEnabled: Bool) {
@@ -68,7 +66,7 @@ extension SettingsViewModel: SettingsViewModelInputProtocol {
                 options: [.alert, .sound, .badge]
             ) { [weak self] granted, _ in
                 DispatchQueue.main.async {
-                    self?.output?.didFetchNotificationStatus(isEnabled: granted)
+                    self?.outputDelegate?.didFetchNotificationStatus(isEnabled: granted)
                 }
             }
         }
@@ -87,13 +85,13 @@ extension SettingsViewModel: SettingsViewModelInputProtocol {
         case .defaultItem:
             switch item.title {
             case "Rate Us":
-                output?.promptAppReview()
+                outputDelegate?.promptAppReview()
 
             case "Privacy Policy":
-                output?.openExternalLink(url: "https://mertozseven.com")
+                outputDelegate?.openExternalLink(url: "https://mertozseven.com")
 
             case "Terms of Use":
-                output?.openExternalLink(url: "https://mertozseven.com")
+                outputDelegate?.openExternalLink(url: "https://mertozseven.com")
 
             default:
                 break

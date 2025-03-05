@@ -26,6 +26,7 @@ final class TabBarController: UITabBarController {
     }
 
     // MARK: Lifecycle
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -34,6 +35,7 @@ final class TabBarController: UITabBarController {
 }
 
 // MARK: - Private Methods
+
 private extension TabBarController {
     func setupTabs() {
         let homeVC = createNav(

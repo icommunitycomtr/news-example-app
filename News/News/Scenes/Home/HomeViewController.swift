@@ -20,6 +20,7 @@ protocol HomeViewModelOutputProtocol: AnyObject {
 final class HomeViewController: UIViewController {
 
     // MARK: Properties
+
     private let viewModel: HomeViewModel
 
     private lazy var searchController: UISearchController = {
@@ -51,10 +52,11 @@ final class HomeViewController: UIViewController {
     }()
 
     // MARK: Inits
+
     init(viewModel: HomeViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
-        self.viewModel.output = self
+        self.viewModel.outputDelegate = self
     }
 
     required init?(coder: NSCoder) {
@@ -62,6 +64,7 @@ final class HomeViewController: UIViewController {
     }
 
     // MARK: Life Cycle
+
     override func viewDidLoad() {
         super.viewDidLoad()
         configureView()
@@ -75,6 +78,7 @@ final class HomeViewController: UIViewController {
 }
 
 // MARK: - Private Methods
+
 private extension HomeViewController {
     func configureView() {
         view.backgroundColor = .systemBackground
@@ -100,7 +104,7 @@ private extension HomeViewController {
 
     func fetchNewsIfNeeded() {
         if viewModel.filteredNews.isEmpty {
-            viewModel.fetchTopNews()
+            viewModel.inputDelegate?.fetchTopNews(isLoadMore: false)
         }
     }
 
@@ -110,6 +114,7 @@ private extension HomeViewController {
 }
 
 // MARK: - UITableViewDataSource
+
 extension HomeViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         viewModel.filteredNews.count
@@ -176,18 +181,20 @@ extension HomeViewController: UITableViewDataSource {
                   !searchTerm.isEmpty else {
                 return
             }
-            viewModel.searchNews(searchString: searchTerm, isLoadMore: true)
+            viewModel.inputDelegate?.searchNews(searchString: searchTerm, isLoadMore: true)
         } else {
-            viewModel.fetchTopNews(isLoadMore: true)
+            viewModel.inputDelegate?.fetchTopNews(isLoadMore: true)
         }
     }
 }
 
 // MARK: - UITableViewDelegate
+
 extension HomeViewController: UITableViewDelegate {
 }
 
 // MARK: - HomeViewModelOutputProtocol
+
 extension HomeViewController: HomeViewModelOutputProtocol {
     func didFetchNews(success: Bool) {
         DispatchQueue.main.async {
@@ -198,19 +205,20 @@ extension HomeViewController: HomeViewModelOutputProtocol {
 }
 
 // MARK: - UISearchBarDelegate
+
 extension HomeViewController: UISearchBarDelegate {
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         if searchText.isEmpty {
-            viewModel.searchNews(searchString: "")
+            viewModel.inputDelegate?.searchNews(searchString: "", isLoadMore: false)
             return
         }
 
         if searchText.count >= 3 {
-            viewModel.searchNews(searchString: searchText)
+            viewModel.inputDelegate?.searchNews(searchString: searchText, isLoadMore: false)
         }
     }
 
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
-        viewModel.searchNews(searchString: "")
+        viewModel.inputDelegate?.searchNews(searchString: "", isLoadMore: false)
     }
 }
