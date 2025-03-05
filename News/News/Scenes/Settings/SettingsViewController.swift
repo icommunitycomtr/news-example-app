@@ -122,7 +122,7 @@ extension SettingsViewController: UITableViewDataSource, UITableViewDelegate {
 
         switch item.type {
         case .theme:
-            let themeControl = UISegmentedControl(items: ["Light", "Dark"])
+            let themeControl = UISegmentedControl(items: ["Auto", "Light", "Dark"])
             themeControl.selectedSegmentIndex = viewModel.inputDelegate?.fetchSavedTheme() ?? 0
             themeControl.addTarget(self, action: #selector(themeChanged(_:)), for: .valueChanged)
             cell.accessoryView = themeControl
@@ -147,13 +147,17 @@ extension SettingsViewController: UITableViewDataSource, UITableViewDelegate {
         viewModel.inputDelegate?.handleSelection(for: item)
         tableView.deselectRow(at: indexPath, animated: true)
     }
+}
 
-    @objc private func themeChanged(_ sender: UISegmentedControl) {
+// MARK: - Objective Methods
+
+@objc private extension SettingsViewController {
+    func themeChanged(_ sender: UISegmentedControl) {
         let themeMode = sender.selectedSegmentIndex
         viewModel.inputDelegate?.updateTheme(themeMode: themeMode)
     }
 
-    @objc private func notificationToggled(_ sender: UISwitch) {
+    func notificationToggled(_ sender: UISwitch) {
         viewModel.inputDelegate?.updateNotificationSettings(isEnabled: sender.isOn)
     }
 }
@@ -164,9 +168,9 @@ extension SettingsViewController: SettingsViewModelOutputProtocol {
     func didUpdateTheme(themeMode: Int) {
         let interfaceStyle: UIUserInterfaceStyle
         switch themeMode {
-        case 0: interfaceStyle = .light
-        case 1: interfaceStyle = .dark
-        default: interfaceStyle = .light
+        case 0: interfaceStyle = .unspecified
+        case 1: interfaceStyle = .light
+        default: interfaceStyle = .dark
         }
 
         UIView.animate(withDuration: 0.3) {
@@ -189,7 +193,7 @@ extension SettingsViewController: SettingsViewModelOutputProtocol {
             print("Notifications are disabled")
         }
     }
-
+    
     func openExternalLink(url: String) {
         guard let url = URL(string: url) else { return }
 

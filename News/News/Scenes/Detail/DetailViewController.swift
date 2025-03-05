@@ -148,14 +148,14 @@ private extension DetailViewController {
 
 // MARK: - Objective Methods
 
-private extension DetailViewController {
-    @objc func imageTapped() {
+@objc private extension DetailViewController {
+    func imageTapped() {
         let previewVC = ImagePreviewViewController(imageURL: viewModel.article.urlToImage)
         previewVC.modalPresentationStyle = .fullScreen
         present(previewVC, animated: true)
     }
 
-    @objc func didTapShareButton() {
+    func didTapShareButton() {
         guard let urlString = viewModel.article.url, let shareUrl = URL(string: urlString) else { return }
 
         let openInBrowserActivity = OpenInBrowserActivity()
