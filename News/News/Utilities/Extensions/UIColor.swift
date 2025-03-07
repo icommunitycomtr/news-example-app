@@ -7,17 +7,17 @@
 
 import UIKit
 
-extension UIColor {
+public extension UIColor {
     /// UIColor HEX Code Extension
     /// - Parameters:
     ///  - hex: Hexadecimal Code
     ///  - alpha: Alpha Value
-    public convenience init?(hex: String, alpha: Double = 1.0) {
+    convenience init?(hex: String, alpha: Double = 1.0) {
         var pureString = hex.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
-        if (pureString.hasPrefix("#")) {
+        if pureString.hasPrefix("#") {
             pureString.remove(at: pureString.startIndex)
         }
-        if ((pureString.count) != 6) {
+        if (pureString.count) != 6 {
             return nil
         }
         let scanner = Scanner(string: pureString)

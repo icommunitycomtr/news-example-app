@@ -193,7 +193,7 @@ extension SettingsViewController: SettingsViewModelOutputProtocol {
             print("Notifications are disabled")
         }
     }
-    
+
     func openExternalLink(url: String) {
         guard let url = URL(string: url) else { return }
 
