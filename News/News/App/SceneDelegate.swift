@@ -27,8 +27,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         KingfisherManager.shared.cache.memoryStorage.config.totalCostLimit = 50 * 1024 * 1024
         KingfisherManager.shared.cache.memoryStorage.config.expiration = .seconds(300)
 
-        let navigationController = UINavigationController(rootViewController: SplashViewController())
-        window.rootViewController = navigationController
+        window.rootViewController = SplashViewController()
         window.makeKeyAndVisible()
     }
 
