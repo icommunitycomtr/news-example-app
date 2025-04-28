@@ -33,6 +33,9 @@ final class HomeViewModel {
     private var page = 1
     private var mode: Mode = .top
 
+    private let debounceInterval: TimeInterval = 0.5
+    private var debounceWorkItem: DispatchWorkItem?
+
     weak var inputDelegate: HomeViewModelInputProtocol?
     weak var outputDelegate: HomeViewModelOutputProtocol?
 
@@ -42,6 +45,8 @@ final class HomeViewModel {
         newsService = service
         inputDelegate = self
     }
+
+    deinit { debounceWorkItem?.cancel() }
 }
 
 // MARK: - HomeViewModelInputProtocol
@@ -54,11 +59,25 @@ extension HomeViewModel: HomeViewModelInputProtocol {
 
     func search(term: String) {
         let trimmed = term.trimmingCharacters(in: .whitespacesAndNewlines)
-        mode = trimmed.isEmpty ? .top : .search(trimmed)
-        fetch(reset: true)
+
+        debounceWorkItem?.cancel()
+
+        let workItem = DispatchWorkItem { [weak self] in
+            guard let self else { return }
+            self.mode = trimmed.isEmpty ? .top : .search(trimmed)
+            self.fetch(reset: true)
+        }
+
+        debounceWorkItem = workItem
+
+        DispatchQueue.main.asyncAfter(
+            deadline: .now() + debounceInterval,
+            execute: workItem
+        )
     }
 
     func loadMore() {
+        if mode == .top, page > 2 { return }
         guard !isLoading else { return }
         fetch(reset: false)
     }

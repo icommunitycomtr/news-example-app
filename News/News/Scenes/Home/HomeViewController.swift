@@ -156,18 +156,7 @@ extension HomeViewController: HomeViewModelOutputProtocol {
         }
     }
 
-    func didFail(with error: Error) {
-        DispatchQueue.main.async { [weak self] in
-            guard let self else { return }
-            let alert = UIAlertController(
-                title: "Error",
-                message: "Please check your internet connection.",
-                preferredStyle: .alert
-            )
-            alert.addAction(UIAlertAction(title: "OK", style: .default))
-            self.present(alert, animated: true)
-        }
-    }
+    func didFail(with error: Error) { }
 
     func didBecomeEmpty(_ isEmpty: Bool) {
         DispatchQueue.main.async { [weak self] in
@@ -181,8 +170,8 @@ extension HomeViewController: HomeViewModelOutputProtocol {
 
 extension HomeViewController: UISearchBarDelegate {
     func searchBar(_ searchBar: UISearchBar, textDidChange text: String) {
-        if text.isEmpty { viewModel.search(term: "") } else
-        if text.count >= 3 { viewModel.search(term: text) }
+        if text.isEmpty { viewModel.search(term: "") }
+        else if text.count >= 3 { viewModel.search(term: text) }
     }
 
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
