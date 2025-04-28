@@ -89,20 +89,18 @@ private extension SplashViewController {
 
 extension SplashViewController: SplashOutputProtocol {
     func transitionToMainScene() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            guard let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate else {
-                return
-            }
-
-            let tabBarController = TabBarController()
-
-            UIView.transition(
-                with: sceneDelegate.window!,
-                duration: 0.7,
-                options: .transitionFlipFromRight,
-                animations: {
-                    sceneDelegate.window?.rootViewController = tabBarController
-                })
+        guard let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate else {
+            return
         }
+
+        let tabBarController = TabBarController()
+
+        UIView.transition(
+            with: sceneDelegate.window!,
+            duration: 0.7,
+            options: .transitionFlipFromRight,
+            animations: {
+                sceneDelegate.window?.rootViewController = tabBarController
+            })
     }
 }

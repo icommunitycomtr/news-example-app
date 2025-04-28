@@ -21,7 +21,7 @@ final class SplashViewModel {
 extension SplashViewModel: SplashInputProtocol {
 
     func splashScreenLoaded() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             self.outputDelegate?.transitionToMainScene()
         }
     }
