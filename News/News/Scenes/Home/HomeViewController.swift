@@ -12,7 +12,9 @@ import UIKit
 // MARK: - HomeViewModelOutputProtocol
 
 protocol HomeViewModelOutputProtocol: AnyObject {
-    func didFetchNews(success: Bool)
+    func didUpdateArticles(_ articles: [Article], append: Bool)
+    func didFail(with error: Error)
+    func didBecomeEmpty(_ isEmpty: Bool)
 }
 
 // MARK: - HomeViewController
@@ -67,8 +69,9 @@ final class HomeViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
         configureView()
-        fetchNewsIfNeeded()
+        viewModel.inputDelegate?.viewDidLoad()
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -101,57 +104,26 @@ private extension HomeViewController {
             $0.center.equalToSuperview()
         }
     }
-
-    func fetchNewsIfNeeded() {
-        viewModel.inputDelegate?.fetchTopNews(isLoadMore: false)
-    }
-
-    func updateEmptyStateVisibility() {
-        emptyStateLabel.isHidden = !viewModel.filteredNews.isEmpty
-    }
 }
 
 // MARK: - UITableViewDataSource
 
 extension HomeViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        viewModel.filteredNews.count
+        viewModel.articles.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(
-            withIdentifier: NewsCell.identifier,
-            for: indexPath
-        ) as? NewsCell else {
-            fatalError("Failed to dequeue cell")
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: NewsCell.identifier, for: indexPath) as? NewsCell else {
+            fatalError()
         }
-
-        let article = viewModel.filteredNews[indexPath.row]
-        cell.configure(with: article)
+        cell.configure(with: viewModel.articles[indexPath.row])
         return cell
     }
 
     func tableView(_ tableView: UITableView, prefetchRowsAt indexPaths: [IndexPath]) {
-        for indexPath in indexPaths where indexPath.row < viewModel.filteredNews.count {
-            let article = viewModel.filteredNews[indexPath.row]
-            guard let imageUrlString = article.urlToImage,
-                  let imageUrl = URL(string: imageUrlString) else {
-                continue
-            }
-            ImagePrefetcher(resources: [imageUrl]).start()
-        }
-    }
-
-    private func loadMoreIfNeeded() {
-        if viewModel.isSearching {
-            guard let searchTerm = searchController.searchBar.text,
-                  !searchTerm.isEmpty else {
-                return
-            }
-            viewModel.inputDelegate?.searchNews(searchString: searchTerm, isLoadMore: true)
-        } else {
-            viewModel.inputDelegate?.fetchTopNews(isLoadMore: true)
-        }
+        let urls = indexPaths.compactMap { viewModel.articles[$0.row].urlToImage }.compactMap(URL.init(string:))
+        ImagePrefetcher(urls: urls).start()
     }
 }
 
@@ -160,37 +132,47 @@ extension HomeViewController: UITableViewDataSource {
 extension HomeViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        let detailVC = DetailViewController(viewModel: DetailViewModel(article: viewModel.filteredNews[indexPath.row]))
+        let detailVC = DetailViewController(viewModel: DetailViewModel(article: viewModel.articles[indexPath.row]))
         navigationController?.pushViewController(detailVC, animated: true)
     }
 
-    func tableView(_ tableView: UITableView,
-                   willDisplay cell: UITableViewCell,
-                   forRowAt indexPath: IndexPath) {
-        let lastRow = viewModel.filteredNews.count - 1
-        if indexPath.row == lastRow {
-            loadMoreIfNeeded()
-        }
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        if indexPath.row == viewModel.articles.count - 1 { viewModel.loadMore() }
     }
 
-    func tableView(
-        _ tableView: UITableView,
-        didEndDisplaying cell: UITableViewCell,
-        forRowAt indexPath: IndexPath
-    ) {
-        guard let newsCell = cell as? NewsCell else { return }
-        newsCell.cancelImageDownload()
-        newsCell.clearImage()
+    func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        (cell as? NewsCell)?.cancelImageDownload()
     }
 }
 
 // MARK: - HomeViewModelOutputProtocol
 
 extension HomeViewController: HomeViewModelOutputProtocol {
-    func didFetchNews(success: Bool) {
-        DispatchQueue.main.async {
+    func didUpdateArticles(_ articles: [Article], append: Bool) {
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
             self.tableView.reloadData()
-            self.updateEmptyStateVisibility()
+            emptyStateLabel.isHidden = !articles.isEmpty
+        }
+    }
+
+    func didFail(with error: Error) {
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            let alert = UIAlertController(
+                title: "Error",
+                message: "Please check your internet connection.",
+                preferredStyle: .alert
+            )
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            self.present(alert, animated: true)
+        }
+    }
+
+    func didBecomeEmpty(_ isEmpty: Bool) {
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            emptyStateLabel.isHidden = !isEmpty
         }
     }
 }
@@ -198,18 +180,12 @@ extension HomeViewController: HomeViewModelOutputProtocol {
 // MARK: - UISearchBarDelegate
 
 extension HomeViewController: UISearchBarDelegate {
-    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        if searchText.isEmpty {
-            viewModel.inputDelegate?.searchNews(searchString: "", isLoadMore: false)
-            return
-        }
-
-        if searchText.count >= 3 {
-            viewModel.inputDelegate?.searchNews(searchString: searchText, isLoadMore: false)
-        }
+    func searchBar(_ searchBar: UISearchBar, textDidChange text: String) {
+        if text.isEmpty { viewModel.search(term: "") } else
+        if text.count >= 3 { viewModel.search(term: text) }
     }
 
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
-        viewModel.inputDelegate?.searchNews(searchString: "", isLoadMore: false)
+        viewModel.search(term: "")
     }
 }

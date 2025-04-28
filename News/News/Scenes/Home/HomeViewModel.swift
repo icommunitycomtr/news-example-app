@@ -8,11 +8,15 @@
 import Foundation
 import Kingfisher
 
-// MARK: - HomeViewModelInputProtocol
+enum Mode: Equatable {
+    case top
+    case search(String)
+}
 
 protocol HomeViewModelInputProtocol: AnyObject {
-    func searchNews(searchString: String, isLoadMore: Bool)
-    func fetchTopNews(isLoadMore: Bool)
+    func viewDidLoad()
+    func search(term: String)
+    func loadMore()
 }
 
 // MARK: - HomeViewModel
@@ -22,28 +26,20 @@ final class HomeViewModel {
     // MARK: Properties
 
     private let newsService: NewsServiceProtocol
+    private(set) var articles: [Article] = []
+    private let pageSize = 20
+
+    private var isLoading = false
+    private var page = 1
+    private var mode: Mode = .top
+
     weak var inputDelegate: HomeViewModelInputProtocol?
     weak var outputDelegate: HomeViewModelOutputProtocol?
 
-    private var isLoading = false
-    private var currentTopNewsPage = 1
-    private var currentSearchPage = 1
-
-    private var loadCountSinceLastClear = 0
-    private var lastPageImageURLs: [String] = []
-
-    private var searchWorkItem: DispatchWorkItem?
-
-    var news: [Article]
-    var filteredNews: [Article]
-    var isSearching = false
-
     // MARK: Init
 
-    init(newsService: NewsServiceProtocol, news: [Article] = []) {
-        self.newsService = newsService
-        self.news = news
-        self.filteredNews = news
+    init(service: NewsServiceProtocol = NewsService()) {
+        newsService = service
         inputDelegate = self
     }
 }
@@ -51,147 +47,55 @@ final class HomeViewModel {
 // MARK: - HomeViewModelInputProtocol
 
 extension HomeViewModel: HomeViewModelInputProtocol {
-    func searchNews(searchString: String, isLoadMore: Bool = false) {
-        searchWorkItem?.cancel()
 
-        if searchString.isEmpty {
-            isSearching = false
-            filteredNews = news
-            DispatchQueue.main.async {
-                self.outputDelegate?.didFetchNews(success: true)
-            }
-            return
-        }
-
-        let workItem = DispatchWorkItem { [weak self] in
-            guard let self = self else { return }
-            guard !self.isLoading else { return }
-            self.isLoading = true
-
-            if !isLoadMore {
-                self.currentSearchPage = 1
-            }
-            self.isSearching = true
-
-            self.newsService.searchNews(
-                searchString: searchString,
-                page: self.currentSearchPage,
-                pageSize: 20
-            ) { [weak self] result in
-                guard let self = self else { return }
-                self.isLoading = false
-
-                switch result {
-                case .success(let response):
-                    self.handleSearchSuccess(isLoadMore: isLoadMore, articles: response.articles)
-
-                case .failure:
-                    DispatchQueue.main.async {
-                        self.outputDelegate?.didFetchNews(success: false)
-                    }
-                }
-            }
-        }
-
-        searchWorkItem = workItem
-        let delay: TimeInterval = isLoadMore ? 0 : 1
-        DispatchQueue.global().asyncAfter(deadline: .now() + delay, execute: workItem)
+    func viewDidLoad() {
+        fetch(reset: true)
     }
 
-    func fetchTopNews(isLoadMore: Bool = false) {
+    func search(term: String) {
+        let trimmed = term.trimmingCharacters(in: .whitespacesAndNewlines)
+        mode = trimmed.isEmpty ? .top : .search(trimmed)
+        fetch(reset: true)
+    }
+
+    func loadMore() {
         guard !isLoading else { return }
-        isLoading = true
-
-        if !isLoadMore {
-            currentTopNewsPage = 1
-        }
-
-        newsService.fetchTopNews(country: "us", pageSize: 20, page: currentTopNewsPage) { [weak self] result in
-            guard let self = self else { return }
-            self.isLoading = false
-
-            switch result {
-            case .success(let response):
-                self.handleTopNewsSuccess(isLoadMore: isLoadMore, articles: response.articles)
-
-            case .failure:
-                DispatchQueue.main.async {
-                    self.outputDelegate?.didFetchNews(success: false)
-                }
-            }
-        }
+        fetch(reset: false)
     }
 }
 
 // MARK: - Private Methods
 
 private extension HomeViewModel {
-    func removeImages(urls: [String]) {
-        urls.forEach {
-            KingfisherManager.shared.cache.removeImage(
-                forKey: $0,
-                fromMemory: true,
-                fromDisk: false
-            )
-        }
-    }
 
-    func handleSearchSuccess(isLoadMore: Bool, articles: [Article]) {
-        if isLoadMore {
-            removeImages(urls: lastPageImageURLs)
-            lastPageImageURLs.removeAll()
-        }
+    func fetch(reset: Bool) {
+        guard !isLoading else { return }
+        isLoading = true
+        if reset { page = 1 }
 
-        let newPageImageURLs = articles.compactMap { $0.urlToImage }
-        lastPageImageURLs.append(contentsOf: newPageImageURLs)
+        let completion: (Result<NewsModel, NetworkError>) -> Void = { [weak self] result in
+            guard let self else { return }
+            isLoading = false
 
-        if isLoadMore {
-            filteredNews.append(contentsOf: articles)
-        } else {
-            filteredNews = articles
-        }
+            switch result {
+            case .success(let newsModel):
+                if reset { articles = newsModel.articles } else { articles += newsModel.articles }
+                outputDelegate?.didUpdateArticles(articles, append: !reset)
+                outputDelegate?.didBecomeEmpty(articles.isEmpty)
+                if !newsModel.articles.isEmpty { page += 1 }
+                print("page: \(page)")
+                print("articles count: \(articles.count)")
 
-        if !articles.isEmpty {
-            print("Search page: \(currentSearchPage)")
-            currentSearchPage += 1
-        }
-
-        DispatchQueue.main.async {
-            self.outputDelegate?.didFetchNews(success: true)
-        }
-    }
-
-    func handleTopNewsSuccess(isLoadMore: Bool, articles: [Article]) {
-        if isLoadMore {
-            removeImages(urls: lastPageImageURLs)
-            lastPageImageURLs.removeAll()
-
-            loadCountSinceLastClear += 1
-            if loadCountSinceLastClear >= 3 {
-                removeImages(urls: lastPageImageURLs)
-                lastPageImageURLs.removeAll()
-                loadCountSinceLastClear = 0
+            case .failure(let error):
+                outputDelegate?.didFail(with: error)
             }
         }
 
-        let newPageImageURLs = articles.compactMap { $0.urlToImage }
-        lastPageImageURLs.append(contentsOf: newPageImageURLs)
-
-        if isLoadMore {
-            news.append(contentsOf: articles)
-            filteredNews.append(contentsOf: articles)
-        } else {
-            news = articles
-            filteredNews = articles
-        }
-
-        if !articles.isEmpty {
-            print("Top news page: \(currentTopNewsPage)")
-            currentTopNewsPage += 1
-        }
-
-        DispatchQueue.main.async {
-            self.outputDelegate?.didFetchNews(success: true)
+        switch mode {
+        case .top:
+            newsService.fetchTopNews(country: "us", pageSize: 20, page: page, completion: completion)
+        case .search(let query):
+            newsService.searchNews(searchString: query, page: page, pageSize: 20, completion: completion)
         }
     }
 }
