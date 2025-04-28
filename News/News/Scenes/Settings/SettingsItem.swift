@@ -7,33 +7,22 @@
 
 import Foundation
 
-enum SettingsSection {
-    case appearance([SettingItem])
-    case notifications([SettingItem])
-    case general([SettingItem])
-    case legal([SettingItem])
-    case version([SettingItem])
-
-    var items: [SettingItem] {
-        switch self {
-        case .appearance(let items),
-                .notifications(let items),
-                .general(let items),
-                .legal(let items),
-                .version(let items):
-            return items
-        }
-    }
+enum SettingSectionType {
+    case theme
+    case notification
+    case rateApp
+    case privacyPolicy
+    case termsOfUse
+    case version
 }
 
 struct SettingItem {
     let title: String
-    let icon: String
-    let type: SettingType
+    let iconName: String
+    let type: SettingSectionType
 }
 
-enum SettingType {
-    case theme
-    case notification
-    case defaultItem
+struct SettingsSection {
+    let title: String
+    let items: [SettingItem]
 }

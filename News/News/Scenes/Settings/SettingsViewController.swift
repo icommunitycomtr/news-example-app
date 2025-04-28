@@ -5,16 +5,16 @@
 //  Created by Mert Ozseven on 7.02.2025.
 //
 
-import SafariServices
-import StoreKit
 import UIKit
-import UserNotifications
+import SafariServices
+import SnapKit
+import StoreKit
 
 protocol SettingsViewModelOutputProtocol: AnyObject {
-    func didUpdateTheme(themeMode: Int)
-    func didFetchNotificationStatus(isEnabled: Bool)
-    func openExternalLink(url: String)
-    func promptAppReview()
+    func didUpdateTheme(_ mode: Int)
+    func didUpdateNotification(_ isAuthorized: Bool)
+    func openURL(_ url: String)
+    func promptReview()
 }
 
 final class SettingsViewController: UIViewController {
@@ -23,36 +23,28 @@ final class SettingsViewController: UIViewController {
 
     private let viewModel: SettingsViewModel
 
-    private var appVersion: String {
-        let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "Unknown"
-        let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "Unknown"
-        return "Version \(version) (\(build))"
-    }
-
     private lazy var tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .insetGrouped)
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
-        tableView.dataSource = self
         tableView.delegate = self
+        tableView.dataSource = self
+        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
         return tableView
     }()
 
     // MARK: Inits
 
-    init(viewModel: SettingsViewModel) {
+    init(viewModel: SettingsViewModel = SettingsViewModel()) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
         self.viewModel.outputDelegate = self
     }
 
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
+    required init?(coder: NSCoder) { fatalError() }
 
     // MARK: Life Cycle
-
     override func viewDidLoad() {
         super.viewDidLoad()
+
         configureView()
     }
 }
@@ -60,11 +52,9 @@ final class SettingsViewController: UIViewController {
 // MARK: - Private Methods
 
 private extension SettingsViewController {
+
     func configureView() {
         view.backgroundColor = .systemGroupedBackground
-        navigationItem.title = "Settings"
-        navigationController?.navigationBar.prefersLargeTitles = true
-
         addViews()
         configureLayout()
     }
@@ -74,137 +64,100 @@ private extension SettingsViewController {
     }
 
     func configureLayout() {
-        tableView.snp.makeConstraints {
-            $0.edges.equalTo(view.safeAreaLayoutGuide)
-        }
+        tableView.snp.makeConstraints { $0.edges.equalToSuperview() }
     }
 }
 
-// MARK: - UITableViewDataSource, UITableViewDelegate
-
-extension SettingsViewController: UITableViewDataSource, UITableViewDelegate {
+extension SettingsViewController: UITableViewDataSource {
     func numberOfSections(in tableView: UITableView) -> Int {
-        viewModel.settingsSections.count
+        viewModel.sections.count
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        let sectionType = viewModel.settingsSections[section]
-        switch sectionType {
-        case .version:
-            return 1
-
-        default:
-            return sectionType.items.count
-        }
+        viewModel.sections[section].items.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
 
-        let sectionType = viewModel.settingsSections[indexPath.section]
+        cell.tintColor = .label
 
-        if case .version = sectionType {
-            cell.textLabel?.text = appVersion
-            cell.textLabel?.textAlignment = .center
-            cell.textLabel?.textColor = .secondaryLabel
-            cell.isUserInteractionEnabled = false
-            cell.backgroundColor = .clear
-            return cell
-        }
-
-        let item = sectionType.items[indexPath.row]
+        let section = viewModel.sections[indexPath.section]
+        let item = section.items[indexPath.row]
 
         cell.textLabel?.text = item.title
-        cell.imageView?.image = UIImage(systemName: item.icon)
-        cell.imageView?.tintColor = .label
-        cell.accessoryView = nil
-        cell.selectionStyle = .none
+        cell.textLabel?.textAlignment = .natural
+        cell.textLabel?.textColor = .label
+        cell.imageView?.image = UIImage(systemName: item.iconName)
 
         switch item.type {
         case .theme:
-            let themeControl = UISegmentedControl(items: ["Auto", "Light", "Dark"])
-            themeControl.selectedSegmentIndex = viewModel.inputDelegate?.fetchSavedTheme() ?? 0
-            themeControl.addTarget(self, action: #selector(themeChanged(_:)), for: .valueChanged)
-            cell.accessoryView = themeControl
+            let segmentedControl = UISegmentedControl(items: ["Auto", "Light", "Dark"])
+            segmentedControl.selectedSegmentIndex = viewModel.inputDelegate?.fetchThemeMode() ?? 0
+            segmentedControl.addTarget(self, action: #selector(didChangeTheme(_:)), for: .valueChanged)
+            cell.accessoryView = segmentedControl
 
         case .notification:
-            let switchControl = UISwitch()
-            viewModel.inputDelegate?.fetchNotificationStatus { isAuthorized in
-                switchControl.isOn = isAuthorized
-            }
-            switchControl.addTarget(self, action: #selector(notificationToggled(_:)), for: .valueChanged)
-            cell.accessoryView = switchControl
+            let switcher = UISwitch()
+            viewModel.inputDelegate?.fetchNotificationStatus { switcher.isOn = $0 }
+            switcher.addTarget(self, action: #selector(didToggleNotification), for: .valueChanged)
+            cell.accessoryView = switcher
 
-        case .defaultItem:
+        case .rateApp, .privacyPolicy, .termsOfUse:
+            cell.selectionStyle = .default
             cell.accessoryType = .disclosureIndicator
-        }
 
+        case .version:
+            cell.imageView?.image = nil
+            cell.textLabel?.textColor = .secondaryLabel
+            cell.textLabel?.textAlignment = .center
+            cell.isUserInteractionEnabled = false
+            cell.backgroundColor = .clear
+        }
         return cell
     }
+}
 
+extension SettingsViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let item = viewModel.settingsSections[indexPath.section].items[indexPath.row]
-        viewModel.inputDelegate?.handleSelection(for: item)
+        let item = viewModel.sections[indexPath.section].items[indexPath.row]
+        viewModel.inputDelegate?.didSelect(item: item)
         tableView.deselectRow(at: indexPath, animated: true)
     }
 }
 
-// MARK: - Objective Methods
-
 @objc private extension SettingsViewController {
-    func themeChanged(_ sender: UISegmentedControl) {
-        let themeMode = sender.selectedSegmentIndex
-        viewModel.inputDelegate?.updateTheme(themeMode: themeMode)
+    func didChangeTheme(_ sender: UISegmentedControl) {
+        viewModel.inputDelegate?.updateThemeMode(sender.selectedSegmentIndex)
     }
-
-    func notificationToggled(_ sender: UISwitch) {
-        viewModel.inputDelegate?.updateNotificationSettings(isEnabled: sender.isOn)
+    func didToggleNotification(_ sender: UISwitch) {
+        viewModel.inputDelegate?.updateNotification(isOn: sender.isOn)
     }
 }
 
-// MARK: - SettingsViewModelOutputProtocol
-
 extension SettingsViewController: SettingsViewModelOutputProtocol {
-    func didUpdateTheme(themeMode: Int) {
-        let interfaceStyle: UIUserInterfaceStyle
-        switch themeMode {
-        case 0: interfaceStyle = .unspecified
-        case 1: interfaceStyle = .light
-        default: interfaceStyle = .dark
-        }
-
-        UIView.animate(withDuration: 0.3) {
-            self.view.window?.overrideUserInterfaceStyle = interfaceStyle
+    func didUpdateTheme(_ mode: Int) {
+        switch mode {
+        case 1: view.window?.overrideUserInterfaceStyle = .light
+        case 2: view.window?.overrideUserInterfaceStyle = .dark
+        default: view.window?.overrideUserInterfaceStyle = .unspecified
         }
     }
 
-    func didFetchNotificationStatus(isEnabled: Bool) {
-        if isEnabled {
-            UNUserNotificationCenter.current().requestAuthorization(
-                options: [.alert, .sound, .badge]
-            ) { granted, _ in
-                DispatchQueue.main.async {
-                    if !granted {
-                        print("Notifications are enabled")
-                    }
-                }
-            }
-        } else {
-            print("Notifications are disabled")
-        }
+    func didUpdateNotification(_ isAuthorized: Bool) {
+        print("Notifications \(isAuthorized ? "On" : "Off")")
     }
 
-    func openExternalLink(url: String) {
-        guard let url = URL(string: url) else { return }
-
-        let safariVC = SFSafariViewController(url: url)
+    func openURL(_ url: String) {
+        guard let urlToOpen = URL(string: url) else { return }
+        let safariVC = SFSafariViewController(url: urlToOpen)
         safariVC.modalPresentationStyle = .overFullScreen
         present(safariVC, animated: true)
     }
 
-    func promptAppReview() {
-        if let windowScene = view.window?.windowScene {
-            SKStoreReviewController.requestReview(in: windowScene)
+    func promptReview() {
+        if let scn = view.window?.windowScene {
+            SKStoreReviewController.requestReview(in: scn)
         }
     }
 }

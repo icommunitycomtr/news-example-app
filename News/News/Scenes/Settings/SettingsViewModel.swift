@@ -9,37 +9,42 @@ import Foundation
 import UserNotifications
 
 protocol SettingsViewModelInputProtocol: AnyObject {
-    func updateTheme(themeMode: Int)
-    func fetchSavedTheme() -> Int
-    func updateNotificationSettings(isEnabled: Bool)
-    func fetchNotificationStatus(completion: @escaping (Bool) -> Void)
-    func handleSelection(for item: SettingItem)
+    func fetchThemeMode() -> Int
+    func updateThemeMode(_ mode: Int)
+    func updateNotification(isOn: Bool)
+    func fetchNotificationStatus(_ completion: @escaping (Bool) -> Void)
+    func didSelect(item: SettingItem)
 }
 
 final class SettingsViewModel {
-
-    // MARK: Properties
-
     weak var inputDelegate: SettingsViewModelInputProtocol?
     weak var outputDelegate: SettingsViewModelOutputProtocol?
 
     private let themeKey = "selectedTheme"
 
-    let settingsSections: [SettingsSection] = [
-        .appearance([
-            SettingItem(title: "App Theme", icon: "circle.righthalf.filled", type: .theme)
+    var appVersionText: String {
+        let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "?"
+        let bundle = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "?"
+        return "Version \(version) (\(bundle))"
+    }
+
+    lazy var sections: [SettingsSection] = [
+        SettingsSection(title: "Appearance", items: [
+            SettingItem(title: "App Theme", iconName: "circle.righthalf.filled", type: .theme)
         ]),
-        .notifications([
-            SettingItem(title: "Notification", icon: "bell.fill", type: .notification)
+        SettingsSection(title: "Notifications", items: [
+            SettingItem(title: "Notification", iconName: "bell.fill", type: .notification)
         ]),
-        .general([
-            SettingItem(title: "Rate Us", icon: "star.fill", type: .defaultItem)
+        SettingsSection(title: "General", items: [
+            SettingItem(title: "Rate Us", iconName: "star.fill", type: .rateApp)
         ]),
-        .legal([
-            SettingItem(title: "Privacy Policy", icon: "text.document.fill", type: .defaultItem),
-            SettingItem(title: "Terms of Use", icon: "checkmark.shield.fill", type: .defaultItem)
+        SettingsSection(title: "Legal", items: [
+            SettingItem(title: "Privacy Policy", iconName: "text.document.fill", type: .privacyPolicy),
+            SettingItem(title: "Terms of Use", iconName: "checkmark.shield.fill", type: .termsOfUse)
         ]),
-        .version([])
+        SettingsSection(title: "Version", items: [
+            SettingItem(title: appVersionText, iconName: "", type: .version)
+        ])
     ]
 
     init() {
@@ -47,58 +52,42 @@ final class SettingsViewModel {
     }
 }
 
-// MARK: - SettingsViewModelInputProtocol
-
 extension SettingsViewModel: SettingsViewModelInputProtocol {
-
-    func fetchSavedTheme() -> Int {
+    func fetchThemeMode() -> Int {
         UserDefaults.standard.integer(forKey: themeKey)
     }
 
-    func updateTheme(themeMode: Int) {
-        UserDefaults.standard.set(themeMode, forKey: themeKey)
-        outputDelegate?.didUpdateTheme(themeMode: themeMode)
+    func updateThemeMode(_ mode: Int) {
+        UserDefaults.standard.set(mode, forKey: themeKey)
+        outputDelegate?.didUpdateTheme(mode)
     }
 
-    func updateNotificationSettings(isEnabled: Bool) {
-        if isEnabled {
-            UNUserNotificationCenter.current().requestAuthorization(
-                options: [.alert, .sound, .badge]
-            ) { [weak self] granted, _ in
-                DispatchQueue.main.async {
-                    self?.outputDelegate?.didFetchNotificationStatus(isEnabled: granted)
-                }
-            }
+    func updateNotification(isOn: Bool) {
+        guard isOn else {
+            outputDelegate?.didUpdateNotification(false)
+            return
         }
-    }
-
-    func fetchNotificationStatus(completion: @escaping (Bool) -> Void) {
-        UNUserNotificationCenter.current().getNotificationSettings { settings in
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { [weak self] granted, _ in
             DispatchQueue.main.async {
-                completion(settings.authorizationStatus == .authorized)
+                self?.outputDelegate?.didUpdateNotification(granted)
             }
         }
     }
 
-    func handleSelection(for item: SettingItem) {
-        switch item.type {
-        case .defaultItem:
-            switch item.title {
-            case "Rate Us":
-                outputDelegate?.promptAppReview()
-
-            case "Privacy Policy":
-                outputDelegate?.openExternalLink(url: "https://mertozseven.com")
-
-            case "Terms of Use":
-                outputDelegate?.openExternalLink(url: "https://mertozseven.com")
-
-            default:
-                break
+    func fetchNotificationStatus(_ completion: @escaping (Bool) -> Void) {
+        UNUserNotificationCenter.current().getNotificationSettings { status in
+            DispatchQueue.main.async {
+                completion(status.authorizationStatus == .authorized)
             }
+        }
+    }
 
-        default:
-            break
+    func didSelect(item: SettingItem) {
+        switch item.type {
+        case .rateApp: outputDelegate?.promptReview()
+        case .privacyPolicy: outputDelegate?.openURL("https://mertozseven.com")
+        case .termsOfUse: outputDelegate?.openURL("https://mertozseven.com")
+        default: break
         }
     }
 }

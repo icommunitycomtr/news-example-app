@@ -139,31 +139,6 @@ extension HomeViewController: UITableViewDataSource {
         return cell
     }
 
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: true)
-        let detailVC = DetailViewController(viewModel: DetailViewModel(article: viewModel.filteredNews[indexPath.row]))
-        navigationController?.pushViewController(detailVC, animated: true)
-    }
-
-    func tableView(_ tableView: UITableView,
-                   willDisplay cell: UITableViewCell,
-                   forRowAt indexPath: IndexPath) {
-        let lastRow = viewModel.filteredNews.count - 1
-        if indexPath.row == lastRow {
-            loadMoreIfNeeded()
-        }
-    }
-
-    func tableView(
-        _ tableView: UITableView,
-        didEndDisplaying cell: UITableViewCell,
-        forRowAt indexPath: IndexPath
-    ) {
-        guard let newsCell = cell as? NewsCell else { return }
-        newsCell.cancelImageDownload()
-        newsCell.clearImage()
-    }
-
     func tableView(_ tableView: UITableView, prefetchRowsAt indexPaths: [IndexPath]) {
         for indexPath in indexPaths where indexPath.row < viewModel.filteredNews.count {
             let article = viewModel.filteredNews[indexPath.row]
@@ -191,6 +166,30 @@ extension HomeViewController: UITableViewDataSource {
 // MARK: - UITableViewDelegate
 
 extension HomeViewController: UITableViewDelegate {
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        let detailVC = DetailViewController(viewModel: DetailViewModel(article: viewModel.filteredNews[indexPath.row]))
+        navigationController?.pushViewController(detailVC, animated: true)
+    }
+
+    func tableView(_ tableView: UITableView,
+                   willDisplay cell: UITableViewCell,
+                   forRowAt indexPath: IndexPath) {
+        let lastRow = viewModel.filteredNews.count - 1
+        if indexPath.row == lastRow {
+            loadMoreIfNeeded()
+        }
+    }
+
+    func tableView(
+        _ tableView: UITableView,
+        didEndDisplaying cell: UITableViewCell,
+        forRowAt indexPath: IndexPath
+    ) {
+        guard let newsCell = cell as? NewsCell else { return }
+        newsCell.cancelImageDownload()
+        newsCell.clearImage()
+    }
 }
 
 // MARK: - HomeViewModelOutputProtocol
