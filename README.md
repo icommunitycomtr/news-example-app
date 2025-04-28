@@ -1,56 +1,155 @@
-# News (Seviye: Zor)
-Basit bir haberler app'i yapıyoruz. 
+# News Example App
 
-[API](https://newsapi.org/s/google-news-api)
+A modern news application that provides users with up-to-date news articles from various sources using the News API. Built with **Swift** and **UIKit**, this application offers a clean and intuitive interface for users to browse, search and share news articles.
 
-**Splash:** İlk açılışta basit bir Splash ekranı bizi karşılıyor. Burada app icon'u ve app name olsun. 
+## Table of Contents
 
-**News:** App açıldığında bizi karşılayan ilk ekran. Burada API'dan çekilen haberler listelenmiş bir şekilde gösterilsin. Haberlerden birine basıldığında haber detayına gidilsin. Cell'deki 3 noktaya basınca alttan bottom sheet çıksın ve sheet'de paylaşma özelliği olsun. Haberi paylaş dediğinde haberin linkini native share sheet ile paylaşabilsin.
-Navigation Bar'ın altında native search bar olsun. Bu search bar ile arama yapabilsin (API'ın search desteği var). Arama sonuçları olabildiğince yumuşak bir animasyon ile gösterilsin. İlk 3 karakter için arama yapılmasın, 3. karakterden sonra her yazılan karakter için arama yapılsın.
+- [Overview](#overview)
+- [Features](#features)
+- [Architecture](#architecture)
+- [Technologies Used](#technologies-used)
+- [Installation](#installation)
+- [Requirements](#requirements)
+- [Screenshots](#screenshots)
 
-**News Detail:** Bir haberin detay ekranı. Sağ üstteki paylaş butonu ile haber paylaşılabilsin. Haberin title'ı navigation bar'ın title'ında gösterilsin. Haberin image'inin gösterilmesi [Kingfisher kütüphanesi](https://github.com/onevcat/Kingfisher) ile yapılsın.
+---
 
-**Settings:** Native komponent'ler kullanılarak bir settings ekranı geliştirilsin. App Theme'de mod değişimi yapıldığında anlık olarak etki etsin (bunu yapmak zor, bu yüzden opsiyonel tutuyorum). Notification'daki switch on olduğunda bildirim izni istensin. Rate Us'a basınca herhangi bir app'in mağaza sayfasına yönlendirilsin (news app'i mağazada olmadığı için kendi app'imizin sayfasına yönlendiremeyiz). Privacy policy ve Terms of Use sayfaları da Safari'de herhangi bir linki açabilir (örnek: google.com).
+## Overview
 
-## Tasarım
-Tasarımı incelemek için .fig uzantılı [tasarım dosyasını](https://github.com/icommunitycomtr/reminder/blob/main/iCommunity-News.fig) indirip Figma'ya import alabilirsiniz.
+The News app is designed to deliver a seamless news reading experience with features like article sharing, search functionality, and customizable settings. Built using **MVVM** architecture, the app demonstrates best practices in iOS development including responsive design, dark mode support, pagination and search.
 
-Tasarımı olabildiğince koda dökmeye çalışın. Gerçek bir iş deneyimi gibi olsun.
+---
 
-Tasarımda iOS ekosistemine aykırı durum var ise düzelterek ekosisteme uygun hale getirin.
+## Features
 
-## Hedef
-- MVVM'i en temiz şekilde kullanmak
-- Reusable şekilde TableView/CollectionView kullanabilmek
-- ViewModel'da mantıksal işlemler yapabilmek
-- NavigationController ve TabController yapılarını anlamak
-- Güzel bir network layer kurabilmek
-- Localization desteği verebilmek
-- Light/Dark mode desteği verebilmek
+- **Splash Screen**  
+  - A welcoming splash screen featuring the app icon and name.
 
-## Mimari
-En basit şekilde **MVVM+Protocol** kullan.
+- **News Feed**
+  - Dynamic list of news articles from News API
+  - Smooth scrolling and responsive layout
+  - Bottom sheet for sharing options
+  - Native share functionality for article links
+  - Pagination for seamless content loading
+  - Loading state indicators during pagination
+  - Smart cache management for paginated content
 
-## Dil / Framework
-Swift ve UIKit
+- **Advanced Search**
+  - Native search bar implementation
+  - Smart search with 3+ character threshold
+  - Smooth animations for search results
+  - Real-time API integration
+  - Paginated search results
 
-## Responsive Design
-- İster **Storyboard** ister programmatically olarak UI'ı oluşturabilirsin. Eğer UI oluşturmada kendini zayıf hissediyorsan Storyboard kullanmanı tavsiye ederim
-- News listesi için TableView/CollectionView kullanabilirsin. Eğer aksi bir durum yok ise **CollectionView** kullanmanı tavsiye ederim
-- Tasarımın tüm iPhone'larda düzgün göründüğünden emin ol
-- Landscape orientation desteği ver
-- iPad desteği ver
+- **Article Details**
+  - Full article view with rich content
+  - Image loading with Kingfisher
+  - Share functionality
+  - Dynamic navigation bar title
 
-## Akış
-News listesini bir array ile kontrol et. Search mekanizmasını kullanırken bu listeyi iyi bir şekilde yönetmen lazım. Listeyi çekmek ve search yapmak için API'ı kullan.
+- **Settings**
+  - Theme toggle (Light/Dark mode)
+  - Push notification management
+  - App rating integration
+  - Privacy policy and Terms of use
+  - Dynamic theme switching
 
-## Anahtar Kelimeler
-- MVVM
-- Protocol
-- Storyboard
-- Auto Layout
-- Programmatically
-- Collection View
-- Table View
-- Network Layer
-- Notification Permission
+- **Responsive Design**
+  - Support for all iPhone models
+  - iPad compatibility
+  - Landscape orientation support
+  - Auto Layout implementation
+
+---
+
+## Architecture
+
+The application follows the **MVVM+Protocol** architecture pattern:
+
+- **Model**  
+  Represents the data structures for news articles and app settings.
+
+- **View**  
+  - Built using UIKit
+  - Supports both Storyboard and programmatic UI
+  - Implements CollectionView for news listing
+  - Responsive design across all devices
+
+- **ViewModel**  
+  - Handles business logic
+  - Manages API calls and data processing
+  - Implements search functionality
+  - Handles settings management
+
+---
+
+## Technologies Used
+
+- **Swift**  
+  Primary programming language
+
+- **UIKit**  
+  Framework for building the user interface
+
+- **Kingfisher**  
+  For efficient image loading and caching
+
+- **Google News API**  
+  Primary data source for news articles
+
+- **Auto Layout**  
+  For responsive design implementation
+
+- **UserNotifications**  
+  For handling push notifications
+
+---
+
+## Installation
+
+1. **Clone the repository**  
+   ```bash
+   git clone https://github.com/yourusername/news-app.git
+   ```
+
+2. **Navigate to Project Directory**
+   ```bash
+   cd news-app
+   ```
+
+3. **API Key Setup**
+   - Get an API key from [News API](https://newsapi.org/)
+   - Add your API key to the configuration
+
+4. **Open Project**
+   ```bash
+   open News.xcodeproj
+   ```
+
+---
+
+## Requirements
+
+- iOS 17.0+
+
+---
+
+## Key Implementation Goals
+
+- Clean MVVM architecture implementation
+- Reusable TableView components
+- Robust network layer
+- Efficient view model logic
+- Light/Dark mode support
+
+---
+
+## Screenshots
+
+| Screen                | Light Mode            | Dark Mode             |
+|----------------------|------------------------|------------------------|
+| Splash Screen        | [Image]               | [Image]               |
+| News Feed            | [Image]               | [Image]               |
+| Article Detail       | [Image]               | [Image]               |
+| Search Results       | [Image]               | [Image]               |
+| Settings             | [Image]               | [Image]               |
