@@ -8,12 +8,13 @@
 import SnapKit
 import UIKit
 
+protocol SplashOutputProtocol: AnyObject {
+    func transitionToMainScene()
+}
+
 final class SplashViewController: UIViewController {
 
     // MARK: Properties
-
-    private let newsService = NewsService()
-    private var fetchedNews: [Article] = []
 
     private let newsImageView: UIImageView = {
         let imageView = UIImageView()
@@ -32,14 +33,27 @@ final class SplashViewController: UIViewController {
         return label
     }()
 
+    private var viewModel: SplashViewModel
+
+    // MARK: Inits
+
+    init(viewModel: SplashViewModel = .init()) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
     // MARK: Life Cycle
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
         configureView()
-        fetchNews()
-        navigateToHome()
+        viewModel.outputDelegate = self
+        viewModel.inputDelegate?.splashScreenLoaded()
     }
 }
 
@@ -69,32 +83,19 @@ private extension SplashViewController {
             $0.height.equalTo(32)
         }
     }
+}
 
-    func fetchNews() {
-        newsService.fetchTopNews(country: "us", pageSize: 100, page: 1) { [weak self] result in
-            DispatchQueue.main.async {
-                switch result {
-                case .success(let response):
-                    self?.fetchedNews = response.articles
-                    self?.navigateToHome()
+// MARK: - SplashOutputProtocol
 
-                case .failure:
-                    print("Failed to fetch news")
-                    self?.navigateToHome()
-                }
-            }
-        }
-    }
-
-    func navigateToHome() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+extension SplashViewController: SplashOutputProtocol {
+    func transitionToMainScene() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             guard let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate else {
                 return
             }
-            let tabBarController = TabBarController(news: self.fetchedNews)
-            if sceneDelegate.window?.rootViewController is TabBarController {
-                return
-            }
+
+            let tabBarController = TabBarController()
+
             UIView.transition(
                 with: sceneDelegate.window!,
                 duration: 0.7,

@@ -103,9 +103,7 @@ private extension HomeViewController {
     }
 
     func fetchNewsIfNeeded() {
-        if viewModel.filteredNews.isEmpty {
-            viewModel.inputDelegate?.fetchTopNews(isLoadMore: false)
-        }
+        viewModel.inputDelegate?.fetchTopNews(isLoadMore: false)
     }
 
     func updateEmptyStateVisibility() {
@@ -129,13 +127,7 @@ extension HomeViewController: UITableViewDataSource {
         }
 
         let article = viewModel.filteredNews[indexPath.row]
-        cell.configure(
-            with: article.title ?? "",
-            author: article.author ?? "",
-            date: article.publishedAt ?? "",
-            imageUrl: article.urlToImage ?? "",
-            url: article.url ?? ""
-        )
+        cell.configure(with: article)
         return cell
     }
 

@@ -26,7 +26,7 @@ final class HomeViewModel {
     weak var outputDelegate: HomeViewModelOutputProtocol?
 
     private var isLoading = false
-    private var currentTopNewsPage = 2
+    private var currentTopNewsPage = 1
     private var currentSearchPage = 1
 
     private var loadCountSinceLastClear = 0
@@ -103,7 +103,7 @@ extension HomeViewModel: HomeViewModelInputProtocol {
         isLoading = true
 
         if !isLoadMore {
-            currentTopNewsPage = 2
+            currentTopNewsPage = 1
         }
 
         newsService.fetchTopNews(country: "us", pageSize: 20, page: currentTopNewsPage) { [weak self] result in

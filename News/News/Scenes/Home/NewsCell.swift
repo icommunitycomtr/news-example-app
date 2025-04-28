@@ -15,6 +15,7 @@ final class NewsCell: UITableViewCell {
 
     static let identifier = "NewsCell"
     private var url: String?
+    private var article: Article?
 
     private lazy var newsImageView: UIImageView = {
         let imageView = UIImageView()
@@ -64,12 +65,14 @@ final class NewsCell: UITableViewCell {
 
     private lazy var moreButton: UIButton = {
         let button = UIButton()
+        let imageConfig = UIImage.SymbolConfiguration(pointSize: 24, weight: .regular, scale: .large)
+        button.setPreferredSymbolConfiguration(imageConfig, forImageIn: .normal)
         button.setImage(
             UIImage(systemName: "ellipsis")?
-                .resized(to: CGSize(width: 24, height: 7))?
                 .withTintColor(.label),
             for: .normal
         )
+        button.imageView?.contentMode = .scaleAspectFit
         button.tintColor = .label
         button.addTarget(self, action: #selector(didTapMoreButton), for: .touchUpInside)
         return button
@@ -97,13 +100,13 @@ final class NewsCell: UITableViewCell {
 // MARK: - Public Methods
 
 extension NewsCell {
-    func configure(with title: String, author: String, date: String, imageUrl: String, url: String) {
-        titleLabel.text = title
-        authorLabel.text = author
-        hourLabel.text = date.formattedHourAndMinute() ?? "Unknown time"
-        dateLabel.text = date.timeAgoSinceDate() ?? "Unknown time"
-        self.url = url
-        newsImageView.setImage(with: imageUrl)
+    func configure(with article: Article) {
+        titleLabel.text = article.title
+        authorLabel.text = article.author
+        hourLabel.text = article.publishedAt?.formattedHourAndMinute() ?? "Unknown time"
+        dateLabel.text = article.publishedAt?.timeAgoSinceDate() ?? "Unknown time"
+        url = article.url
+        newsImageView.setImage(with: article.urlToImage)
     }
 
     func cancelImageDownload() {

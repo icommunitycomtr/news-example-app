@@ -41,7 +41,7 @@ final class NewsService: NewsServiceProtocol {
     func searchNews(
         searchString: String,
         page: Int = 1,
-        pageSize: Int = 100,
+        pageSize: Int = 20,
         completion: @escaping (Result<NewsModel, NetworkError>) -> Void
     ) {
         var urlComponents = URLComponents(string: baseURL + "everything")
@@ -69,7 +69,7 @@ final class NewsService: NewsServiceProtocol {
 
     func fetchTopNews(
         country: String,
-        pageSize: Int = 100,
+        pageSize: Int = 20,
         page: Int = 1,
         completion: @escaping (Result<NewsModel, NetworkError>) -> Void
     ) {
