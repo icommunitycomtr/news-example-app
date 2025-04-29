@@ -11,6 +11,7 @@ A modern news application that provides users with up-to-date news articles from
 - [Installation](#installation)
 - [Requirements](#requirements)
 - [Screenshots](#screenshots)
+- [Usage Video](#usage-video)
 
 ---
 
@@ -64,22 +65,27 @@ The News app is designed to deliver a seamless news reading experience with feat
 
 ## Architecture
 
+![MVVM](https://github.com/user-attachments/assets/30031f29-08b6-4002-a487-28c12ba6f830)
+
 The application follows the **MVVM+Protocol** architecture pattern:
 
-- **Model**  
-  Represents the data structures for news articles and app settings.
+### 📦 Model
+- Defines the data structures, including news articles and app settings.
+- Contains no business logic — purely represents data.
 
-- **View**  
-  - Built using UIKit
-  - Supports both Storyboard and programmatic UI
-  - Implements CollectionView for news listing
-  - Responsive design across all devices
+### 🎛 ViewModel (Business Logic)
+- Acts as an intermediary between View and Model.
+- Uses protocols to communicate with View and decouple dependencies.
+- Handles data fetching, transformation, and state management.
+- Implements core features like searching and settings updates.
 
-- **ViewModel**  
-  - Handles business logic
-  - Manages API calls and data processing
-  - Implements search functionality
-  - Handles settings management
+### 🖥 View (UI)
+- Built using **UIKit**, supporting **programmatic UI**.
+- Uses `UITableView` for displaying articles.
+- Observes the ViewModel for state changes via delegation.
+- Sends user actions to ViewModel through protocols.
+
+This pattern ensures a modular, maintainable, and scalable codebase.
 
 ---
 
@@ -94,11 +100,11 @@ The application follows the **MVVM+Protocol** architecture pattern:
 - **Kingfisher**  
   For efficient image loading and caching
 
-- **Google News API**  
+- **News API**  
   Primary data source for news articles
 
-- **Auto Layout**  
-  For responsive design implementation
+- **Snapkit**  
+  For programmatic responsive design implementation
 
 - **UserNotifications**  
   For handling push notifications
@@ -137,10 +143,12 @@ The application follows the **MVVM+Protocol** architecture pattern:
 ## Key Implementation Goals
 
 - Clean MVVM architecture implementation
-- Reusable TableView components
+- Reusable TableView components with enums and sections
 - Robust network layer
 - Efficient view model logic
 - Light/Dark mode support
+- Pagination support for listing news
+- Proper auto layout support for various screen sizes
 
 ---
 
@@ -148,8 +156,13 @@ The application follows the **MVVM+Protocol** architecture pattern:
 
 | Screen                | Light Mode            | Dark Mode             |
 |----------------------|------------------------|------------------------|
-| Splash Screen        | [Image]               | [Image]               |
-| News Feed            | [Image]               | [Image]               |
-| Article Detail       | [Image]               | [Image]               |
-| Search Results       | [Image]               | [Image]               |
-| Settings             | [Image]               | [Image]               |
+| News Feed            | ![News Feed Light](https://github.com/user-attachments/assets/faee1cae-a7cb-45e1-b254-4db230b1a955) | ![News Feed Dark](https://github.com/user-attachments/assets/625bf9ab-33ea-41ac-a146-30917e396944) |
+| Article Detail       | ![Article Detail Light](https://github.com/user-attachments/assets/6ac6b32e-7b40-47f2-8dd9-651240cb79f8) | ![Article Detail Dark](https://github.com/user-attachments/assets/c80b0c6e-e3ed-4ffe-b92d-1ecca5a55545) |
+| Search Results       | ![Search Results Light](https://github.com/user-attachments/assets/f74d48c6-fb57-49dd-a8ee-27b838b7e9ee) | ![Search Results Dark](https://github.com/user-attachments/assets/73649961-f3fa-4281-8792-c13626e18059) |
+| Settings             | ![Settings Light](https://github.com/user-attachments/assets/27e256f1-60b2-4e42-9bf8-22684dacfb7c) | ![Settings Dark](https://github.com/user-attachments/assets/0eae7b8e-83ef-4a09-8587-741ab1dcbf2e) |
+
+---
+
+## Usage Video
+
+https://1drv.ms/v/c/5fedba1a2e8824e9/EXMaW4uTjO1FsGflgXWuRssBvMIwOIah5ks_sIh2j6ePkA?e=OOvulv
