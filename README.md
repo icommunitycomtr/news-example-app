@@ -163,6 +163,4 @@ This pattern ensures a modular, maintainable, and scalable codebase.
 
 ---
 
-## Usage Video
-
-https://1drv.ms/v/c/5fedba1a2e8824e9/EXMaW4uTjO1FsGflgXWuRssBvMIwOIah5ks_sIh2j6ePkA?e=OOvulv
+## [Usage Video](https://1drv.ms/v/c/5fedba1a2e8824e9/EXMaW4uTjO1FsGflgXWuRssBvMIwOIah5ks_sIh2j6ePkA?e=OOvulv)
